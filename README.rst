@@ -19,7 +19,7 @@ Domain Utils
 A collection of util functions for extracting domains from urls.
 
 This package was originally extracted from
-`openwpm-utils<https://github.com/mozilla/openwpm-utils/blob/14edefa360c482ffcffdfeddbf09e2372d459f4c/openwpm_utils/domain.py>`_.
+openwpm-utils_.
 
 
 * Free software: Mozilla Public License license
@@ -34,3 +34,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _openwpm-utils: https://github.com/mozilla/openwpm-utils/blob/14edefa360c482ffcffdfeddbf09e2372d459f4c/openwpm_utils/domain.py>

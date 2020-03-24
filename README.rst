@@ -19,7 +19,7 @@ Domain Utils
 A collection of util functions for extracting domains from urls.
 
 This package was originally extracted from
-'openwpm-utils<https://github.com/mozilla/openwpm-utils/blob/14edefa360c482ffcffdfeddbf09e2372d459f4c/openwpm_utils/domain.py>`_.
+`openwpm-utils<https://github.com/mozilla/openwpm-utils/blob/14edefa360c482ffcffdfeddbf09e2372d459f4c/openwpm_utils/domain.py>`_.
 
 
 * Free software: Mozilla Public License license

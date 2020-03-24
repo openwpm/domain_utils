@@ -1,0 +1,36 @@
+============
+Domain Utils
+============
+
+
+.. image:: https://img.shields.io/pypi/v/domain_utils.svg
+        :target: https://pypi.python.org/pypi/domain_utils
+
+.. image:: https://img.shields.io/travis/birdsarah/domain_utils.svg
+        :target: https://travis-ci.com/birdsarah/domain_utils
+
+.. image:: https://readthedocs.org/projects/domain-utils/badge/?version=latest
+        :target: https://domain-utils.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
+
+
+
+
+A collection of util functions for extracting domains from urls.
+
+This package was originally extracted from
+'openwpm-utils<https://github.com/mozilla/openwpm-utils/blob/14edefa360c482ffcffdfeddbf09e2372d459f4c/openwpm_utils/domain.py>`_.
+
+
+* Free software: Mozilla Public License license
+* Documentation: https://domain-utils.readthedocs.io.
+
+
+
+Credits
+-------
+
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage

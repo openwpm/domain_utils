@@ -1,6 +1,6 @@
-============
+==============
 `domain_utils`
-============
+==============
 
 
 .. image:: https://img.shields.io/pypi/v/domain_utils.svg

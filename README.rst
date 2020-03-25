@@ -7,7 +7,7 @@ Domain Utils
         :target: https://pypi.python.org/pypi/domain_utils
 
 .. image:: https://img.shields.io/travis/mozilla/domain_utils.svg
-        :target: https://travis-ci.com/mozilla/domain_utils
+        :target: https://travis-ci.org/mozilla/domain_utils
 
 .. image:: https://readthedocs.org/projects/domain-utils/badge/?version=latest
         :target: https://domain-utils.readthedocs.io/en/latest/?badge=latest

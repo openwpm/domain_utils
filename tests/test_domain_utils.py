@@ -3,13 +3,13 @@ import domain_utils as du
 
 
 def test_get_ps_plus_one_cloudfront():
-    result = du.get_ps_plus_1('https://my.domain.cloudfront.net') 
+    result = du.get_ps_plus_1('https://my.domain.cloudfront.net')
     assert result == 'domain.cloudfront.net'
 
 
 @pytest.mark.xfail(reason="Currently not supported")
 def test_get_ps_plus_one_no_https():
-    result = du.get_ps_plus_1('my.domain.cloudfront.net') 
+    result = du.get_ps_plus_1('my.domain.cloudfront.net')
     assert result == 'domain.cloudfront.net'
 
 

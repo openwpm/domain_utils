@@ -1,4 +1,8 @@
-Domain Utils is a small package for parsing urls.
+******
+`domain_utils` documentation
+******
+
+`domain_utils` is a small package for parsing urls.
 
 Repo: https://github.com/mozilla/domain_utils
 

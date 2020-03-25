@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Domain Utils'
+project = 'domain_utils'
 copyright = "2020, Sarah Bird"
 author = "Sarah Bird"
 
@@ -128,7 +128,7 @@ latex_elements = {
 # [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'domain_utils.tex',
-     'Domain Utils Documentation',
+     'domain_utils Documentation',
      'Sarah Bird', 'manual'),
 ]
 
@@ -139,7 +139,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'domain_utils',
-     'Domain Utils Documentation',
+     'domain_utils Documentation',
      [author], 1)
 ]
 
@@ -151,10 +151,10 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'domain_utils',
-     'Domain Utils Documentation',
+     'domain_utils Documentation',
      author,
      'domain_utils',
-     'One line description of project.',
+     'domain_utils is a small package for parsing urls.',
      'Miscellaneous'),
 ]
 

@@ -6,8 +6,8 @@ Domain Utils
 .. image:: https://img.shields.io/pypi/v/domain_utils.svg
         :target: https://pypi.python.org/pypi/domain_utils
 
-.. image:: https://img.shields.io/travis/birdsarah/domain_utils.svg
-        :target: https://travis-ci.com/birdsarah/domain_utils
+.. image:: https://img.shields.io/travis/mozilla/domain_utils.svg
+        :target: https://travis-ci.com/mozilla/domain_utils
 
 .. image:: https://readthedocs.org/projects/domain-utils/badge/?version=latest
         :target: https://domain-utils.readthedocs.io/en/latest/?badge=latest

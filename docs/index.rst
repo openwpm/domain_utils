@@ -1,13 +1,18 @@
 .. include:: ../README.rst
+.. include:: ../HISTORY.rst
+
+========
+Contents
+========
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
    installation
-   modules
+   ## api_docs
+   domain_utils
    contributing
-   history
+   release
 
 * :ref:`genindex`
 * :ref:`modindex`

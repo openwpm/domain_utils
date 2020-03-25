@@ -1,8 +1,5 @@
-domain\_utils package
-=====================
-
-Submodules
-----------
+API Docs
+========
 
 domain\_utils.domain\_utils module
 ----------------------------------
@@ -12,11 +9,3 @@ domain\_utils.domain\_utils module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: domain_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:

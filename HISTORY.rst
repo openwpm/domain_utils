@@ -7,6 +7,7 @@ History
 
 * Restore py27 support.
 * Last version with py27 support.
+* Remove tox
 
 
 0.2.0 (2020-03-24)

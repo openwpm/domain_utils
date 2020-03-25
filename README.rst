@@ -1,5 +1,5 @@
 ============
-Domain Utils
+`domain_utils`
 ============
 
 
@@ -14,9 +14,22 @@ Domain Utils
         :alt: Documentation Status
 
 
-
-
 A collection of util functions for extracting domains from urls.
+
+Repo: https://github.com/mozilla/domain_utils
+
+Install::
+
+    pip install domain_utils
+
+Use::
+
+    import domain_utils as du
+    # Return just the url `my.domain.cloudfront.net/a/path/to/a/file.html`
+    du.get_stripped_url('https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1')
+    # Return just the eTLD+1 `domain.cloudfront.net`
+    du.get_stripped_url('https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1')
+
 
 This package was originally extracted from
 openwpm-utils_.

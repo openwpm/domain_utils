@@ -9,9 +9,13 @@ python:
   - 2.7
 
 # Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
+install: 
+  - python setup.py install
+  - pip install -r requirements_dev.txt
 
 # Command to run tests, e.g. python setup.py test
-script: tox
-
-
+script:
+  - flake8 tests
+  - flake8 domain_utils
+  -	coverage run --source domain_utils -m pytest
+  - coverage report -m

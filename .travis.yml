@@ -9,7 +9,7 @@ python:
 
 install: 
   - python setup.py install
-  - pip install -r requirements_dev.txt --use-mirrors
+  - pip install -r requirements_dev.txt
 
 script:
   - flake8 tests

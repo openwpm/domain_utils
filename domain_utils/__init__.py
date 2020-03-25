@@ -2,6 +2,6 @@
 
 __author__ = """Sarah Bird"""
 __email__ = 'sbird@mozilla.com'
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 from .domain_utils import *  # noqa

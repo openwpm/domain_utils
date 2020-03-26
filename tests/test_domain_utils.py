@@ -13,12 +13,12 @@ def test_get_ps_plus_one_no_https():
 
 def test_get_ps_plus_one_on_about_blank():
     result = du.get_ps_plus_1('about:blank')
-    assert result == None
+    assert result is None
 
 
 def test_get_ps_plus_one_on_relative_url():
     result = du.get_ps_plus_1('/my/path/is.html')
-    assert result == None
+    assert result is None
 
 
 def test_get_stripped_url_params():

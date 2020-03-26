@@ -117,13 +117,21 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 
 def get_stripped_url(url, scheme=False):
-    """Returns a url stripped to (scheme)?+hostname+path"""
+    """
+    Returns a url stripped to (scheme)?+hostname+path
+
+    URL parsing is done using std lib urllib.parse.urlparse
+
+    :param url: URL to be parsed
+    :type url: str
+    :param scheme: If True, scheme will be prepended in returned result, defaults to False
+    :type scheme: bool, optional
+
+    :return: Returns a url stripped to (scheme)?+hostname+path. Returns empty string if appropriate.
+    :rtype: str
+    """
     purl = urlparse(url)
-    surl = ''
+    scheme_out = ''
     if scheme:
-        surl += purl.scheme + '://'
-    try:
-        surl += purl.hostname + purl.path
-    except TypeError:
-        surl += purl.hostname
-    return surl
+        scheme_out = f'{purl.scheme}://'
+    return f'{scheme_out}{purl.hostname}{purl.path}'

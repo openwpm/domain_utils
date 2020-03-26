@@ -57,4 +57,4 @@ def test_get_stripped_url_non_http_scheme_return_self():
 
 def test_get_stripped_url_only_accepts_correct_args_for_non_http_scheme():
     with pytest.raises(ValueError):
-        result = du.get_stripped_url(url, non_http_scheme='milk')
+        result = du.get_stripped_url('', non_http_scheme='milk')

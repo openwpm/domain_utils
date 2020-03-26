@@ -58,7 +58,7 @@ def test_get_stripped_url_with_hostname_only_and_scheme():
 def test_get_stripped_url_non_http_scheme_none():
     url = 'about:blank'
     result = du.get_stripped_url(url, non_http_scheme=None)
-    assert result is ''
+    assert result == ''
 
 
 def test_get_stripped_url_non_http_scheme_return_self():
@@ -69,7 +69,7 @@ def test_get_stripped_url_non_http_scheme_return_self():
 
 def test_get_stripped_url_only_accepts_correct_args_for_non_http_scheme():
     with pytest.raises(ValueError):
-        result = du.get_stripped_url('', non_http_scheme='milk')
+        du.get_stripped_url('', non_http_scheme='milk')
 
 
 def test_get_stripped_url_returns_port_if_present():

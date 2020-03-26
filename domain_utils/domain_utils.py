@@ -119,22 +119,29 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 def get_stripped_url(url, scheme=False, non_http_scheme=None):
     """
     Returns a url stripped to (scheme)?+netloc+path
-    For example `https://my.domain.net/a/path/to/a/file.html#anchor?a=1
-    becomes `my.domain.net/a/path/to/a/file.html`
+    For example ``https://my.domain.net/a/path/to/a/file.html#anchor?a=1``
+    becomes ``my.domain.net/a/path/to/a/file.html``
 
 
     URL parsing is done using std lib urllib.parse.urlparse
-    Using netloc means that a port is included, for example, if it was in the path.
-    This makes it cleaner to think about just the scheme and params being stripped.
+    Using netloc means that a port is included, for example,
+    if it was in the path.
+    The method strips just the beginning and end being stripped.
 
     :param url: URL to be parsed
     :type url: str
-    :param scheme: If True, scheme will be prepended in returned result, defaults to False
+    :param scheme: If True, scheme will be prepended in
+        returned result, defaults to False
     :type scheme: bool, optional
-    :param non_http_scheme: Action to take if scheme is not http or https e.g. file: or 'about:blank'. If None, return empty string. If 'self', return the original URL. Default is None.
-    :type non_http_scheme: None or str, optional
+    :param non_http_scheme: Action to take if scheme is not
+        ``http`` or ``https`` e.g. ``file:`` or ``about:blank``.
+        If None, return empty string.
+        If ``self``, return the original URL.
+        Default is None.
+    :type non_http_scheme: None or ``"self"``, optional
 
-    :return: Returns a url stripped to (scheme)?+netloc+path. Returns empty string if appropriate.
+    :return: Returns a url stripped to (scheme)?+netloc+path.
+        Returns empty string if appropriate.
     :rtype: str
     """
     if non_http_scheme not in [None, 'self']:
@@ -166,4 +173,4 @@ def get_stripped_url(url, scheme=False, non_http_scheme=None):
         scheme_out=scheme_out,
         netloc_out=netloc_out,
         path_out=path_out,
-    )
+        )

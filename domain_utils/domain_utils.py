@@ -60,7 +60,11 @@ def get_ps_plus_1(url, **kwargs):
     if 'psl' not in kwargs:
         raise ValueError(
             "A PublicSuffixList must be passed as a keyword argument.")
-    hostname = urlparse(url).hostname
+    if urlparse(url).scheme == '':
+        purl = urlparse('http://{url}'.format(url=url))
+    else:
+        purl = urlparse(url)
+    hostname = purl.hostname
     if is_ip_address(hostname):
         return hostname
     elif hostname is None:

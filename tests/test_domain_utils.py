@@ -31,6 +31,18 @@ def test_get_stripped_url_path():
     assert result == 'my.domain.cloudfront.net/a/path/to/a/file.html'
 
 
+def test_get_stripped_url_no_path_and_non_http_scheme_self():
+    url = 'https://my.domain.cloudfront.net#anchor'
+    result = du.get_stripped_url(url, non_http_scheme='self')
+    assert result == 'my.domain.cloudfront.net'
+
+
+def test_get_stripped_url_no_scheme_and_non_http_scheme_self():
+    url = 'my.domain.cloudfront.net#anchor'
+    result = du.get_stripped_url(url, non_http_scheme='self')
+    assert result == 'my.domain.cloudfront.net'
+
+
 def test_get_stripped_url_path_params():
     url = 'https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1'
     result = du.get_stripped_url(url)
@@ -46,7 +58,7 @@ def test_get_stripped_url_with_hostname_only_and_scheme():
 def test_get_stripped_url_non_http_scheme_none():
     url = 'about:blank'
     result = du.get_stripped_url(url, non_http_scheme=None)
-    assert result is None
+    assert result is ''
 
 
 def test_get_stripped_url_non_http_scheme_return_self():
@@ -58,3 +70,9 @@ def test_get_stripped_url_non_http_scheme_return_self():
 def test_get_stripped_url_only_accepts_correct_args_for_non_http_scheme():
     with pytest.raises(ValueError):
         result = du.get_stripped_url('', non_http_scheme='milk')
+
+
+def test_get_stripped_url_returns_port_if_present():
+    url = 'http://my.example.com:8080/path/to/webapp.htm?aced=1'
+    result = du.get_stripped_url(url)
+    assert result == 'my.example.com:8080/path/to/webapp.htm'

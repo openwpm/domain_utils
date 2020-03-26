@@ -118,9 +118,14 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 def get_stripped_url(url, scheme=False, non_http_scheme=None):
     """
-    Returns a url stripped to (scheme)?+hostname+path
+    Returns a url stripped to (scheme)?+netloc+path
+    For example `https://my.domain.net/a/path/to/a/file.html#anchor?a=1
+    becomes `my.domain.net/a/path/to/a/file.html`
+
 
     URL parsing is done using std lib urllib.parse.urlparse
+    Using netloc means that a port is included, for example, if it was in the path.
+    This makes it cleaner to think about just the scheme and params being stripped.
 
     :param url: URL to be parsed
     :type url: str
@@ -129,13 +134,36 @@ def get_stripped_url(url, scheme=False, non_http_scheme=None):
     :param non_http_scheme: Action to take if scheme is not http or https e.g. file: or 'about:blank'. If None, return empty string. If 'self', return the original URL. Default is None.
     :type non_http_scheme: None or str, optional
 
-    :return: Returns a url stripped to (scheme)?+hostname+path. Returns empty string if appropriate.
+    :return: Returns a url stripped to (scheme)?+netloc+path. Returns empty string if appropriate.
     :rtype: str
     """
     if non_http_scheme not in [None, 'self']:
         raise ValueError('non_http_scheme must be either `None` or `self`')
     purl = urlparse(url)
+
+    _scheme = purl.scheme
     scheme_out = ''
-    if scheme:
-        scheme_out = f'{purl.scheme}://'
-    return f'{scheme_out}{purl.hostname}{purl.path}'
+    netloc_out = purl.netloc
+    path_out = purl.path
+
+    if _scheme not in ['http', 'https']:
+        if non_http_scheme == 'self':
+            scheme = True
+        if non_http_scheme is None:
+            # e.g. in the case of about:blank, the path is 'blank', but we want
+            # to return nothing
+            path_out = ''
+
+    if scheme is True:
+        if _scheme in ['http', 'https']:
+            scheme_out = '{scheme}://'.format(scheme=_scheme)
+        elif _scheme == '':
+            scheme_out = ''
+        else:
+            scheme_out = '{scheme}:'.format(scheme=_scheme)
+
+    return '{scheme_out}{netloc_out}{path_out}'.format(
+        scheme_out=scheme_out,
+        netloc_out=netloc_out,
+        path_out=path_out,
+    )

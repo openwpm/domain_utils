@@ -116,7 +116,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     return subparts
 
 
-def get_stripped_url(url, scheme=False):
+def get_stripped_url(url, scheme=False, non_http_scheme=None):
     """
     Returns a url stripped to (scheme)?+hostname+path
 
@@ -126,10 +126,14 @@ def get_stripped_url(url, scheme=False):
     :type url: str
     :param scheme: If True, scheme will be prepended in returned result, defaults to False
     :type scheme: bool, optional
+    :param non_http_scheme: Action to take if scheme is not http or https e.g. file: or 'about:blank'. If None, return empty string. If 'self', return the original URL. Default is None.
+    :type non_http_scheme: None or str, optional
 
     :return: Returns a url stripped to (scheme)?+hostname+path. Returns empty string if appropriate.
     :rtype: str
     """
+    if non_http_scheme not in [None, 'self']:
+        raise ValueError('non_http_scheme must be either `None` or `self`')
     purl = urlparse(url)
     scheme_out = ''
     if scheme:

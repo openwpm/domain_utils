@@ -35,3 +35,21 @@ def test_get_stripped_url_path_params():
     url = 'https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1'
     result = du.get_stripped_url(url)
     assert result == 'my.domain.cloudfront.net/a/path/to/a/file.html'
+
+
+def test_get_stripped_url_non_http_scheme_none():
+    url = 'about:blank'
+    result = du.get_stripped_url(url, non_http_scheme=None)
+    assert result is None
+
+
+def test_get_stripped_url_non_http_scheme_return_self():
+    url = 'about:blank'
+    result = du.get_stripped_url(url, non_http_scheme='self')
+    assert result == url
+
+
+def test_get_stripped_url_only_accepts_correct_args_for_non_http_scheme():
+    with pytest.raises(ValueError):
+        result = du.get_stripped_url(url, non_http_scheme='milk')
+    

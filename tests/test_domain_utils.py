@@ -1,4 +1,3 @@
-import pytest
 import domain_utils as du
 
 
@@ -7,10 +6,19 @@ def test_get_ps_plus_one_cloudfront():
     assert result == 'domain.cloudfront.net'
 
 
-@pytest.mark.xfail(reason="Currently not supported")
 def test_get_ps_plus_one_no_https():
     result = du.get_ps_plus_1('my.domain.cloudfront.net')
     assert result == 'domain.cloudfront.net'
+
+
+def test_get_ps_plus_one_on_about_blank():
+    result = du.get_ps_plus_1('about:blank')
+    assert result is None
+
+
+def test_get_ps_plus_one_on_relative_url():
+    result = du.get_ps_plus_1('/my/path/is.html')
+    assert result is None
 
 
 def test_get_stripped_url_params():

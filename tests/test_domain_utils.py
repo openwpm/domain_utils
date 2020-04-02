@@ -96,22 +96,22 @@ def test_get_stripped_url_returns_port_if_present_and_use_netloc_false():
 Currently don't support urls with a port but no scheme in the way we want.
 
 url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
-ParseResult(scheme='my.example.com', netloc='', path='8080/path/to/webapp.htm',...
+ParseResult(scheme='my.example.com', netloc='', path='8080/path/to/webapp.htm',
 
 The following are two tests xfailed with expected behavior and one test
 that documents the actual behavior
 """
 
-@pytest.mark.xfail(reason="""
-urlparse does not have a good way to handle a url with a port but no scheme.""")
+port_no_schema_msg = """
+urlparse does not have a good way to handle a url with a port but no scheme."""
+@pytest.mark.xfail(reason=port_no_schema_msg)
 def test_get_stripped_with_port_when_no_scheme():
     url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
     result = du.get_stripped_url(url)
     assert result == 'my.example.com:8080/path/to/webapp.htm'
 
 
-@pytest.mark.xfail(reason="""
-urlparse does not have a good way to handle a url with a port but no scheme.""")
+@pytest.mark.xfail(reason=port_no_schema_msg)
 def test_get_stripped_url_with_port_when_no_scheme_and_use_netloc_false():
     url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
     result = du.get_stripped_url(url, use_netloc=False)

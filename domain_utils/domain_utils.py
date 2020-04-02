@@ -124,8 +124,10 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     becomes ``my.domain.net/a/path/to/a/file.html``
 
     URL parsing is done using std lib
-    `urllib.parse.urlparse <https://docs.python.org/3.8/library/urllib.parse.html>`_.
-    Empty scheme e.g. ``my.domain.cloudfront.net`` are assumed to be http schemes.
+    `urllib.parse.urlparse
+    <https://docs.python.org/3.8/library/urllib.parse.html>`_.
+    Empty scheme e.g. ``my.domain.cloudfront.net``
+    are assumed to be http schemes.
 
     If a URL has a port but no scheme, urlparse determines the scheme to
     be the hostname and we do not handle this special case. In this case,
@@ -147,7 +149,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         Default is ``False``.
     :type drop_non_http: bool, optional
     :param use_netloc: If ``True`` urlparse's netloc will be used.
-        If ``False`` urlparse's host will be returned. Using netloc means 
+        If ``False`` urlparse's host will be returned. Using netloc means
         that a port is included, for example, if it was in the path.
         Default is ``True``.
     :type use_netloc: bool, optional

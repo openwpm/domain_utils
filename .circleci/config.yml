@@ -31,19 +31,18 @@ jobs:
       - run:
           name: Setup package
           command: |
+            source "$HOME/miniconda/etc/profile.d/conda.sh"
             conda activate testenv
             python setup.py install
             pip install -r requirements_dev.txt
       - run:
           name: Run tests
           command: |
-            echo $(which pytest)
+            source "$HOME/miniconda/etc/profile.d/conda.sh"
             conda activate testenv
             echo $(which pytest)
   test-3.6:
     <<: *test-template
-    docker:
-      - image: continuumio/miniconda3
     environment:
       PYTHON_VERSION: 3.6
   test-3.7:

@@ -22,7 +22,7 @@ jobs:
             conda config --set always_yes yes --set changeps1 no
             conda update -q conda
             conda info -a
-            conda env create -q -n testenv python=$PYTHON_VERSION
+            conda create -q -n testenv python=$PYTHON_VERSION
             conda activate testenv
             python setup.py install
             pip install -r requirements_dev.txt

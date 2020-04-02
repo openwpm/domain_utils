@@ -92,15 +92,18 @@ def test_get_stripped_url_returns_port_if_present_and_use_netloc_false():
     assert result == 'my.example.com/path/to/webapp.htm'
 
 
-"""
-Currently don't support urls with a port but no scheme in the way we want.
-
-url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
-ParseResult(scheme='my.example.com', netloc='', path='8080/path/to/webapp.htm',
-
-The following are two tests xfailed with expected behavior and one test
-that documents the actual behavior
-"""
+###############################################
+# Currently don't support urls with a port but no scheme in the way we want.
+#
+# url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
+# ParseResult(
+#       scheme='my.example.com',
+#       netloc='',
+#       path='8080/path/to/webapp.htm', .....
+#
+# The following are two tests xfailed with expected behavior and one test
+# that documents the actual behavior
+###############################################
 
 port_no_schema_msg = """
 urlparse does not have a good way to handle a url with a port but no scheme."""

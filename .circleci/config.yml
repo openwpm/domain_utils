@@ -16,19 +16,26 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup
+          name: Setup conda
           command: |
             apt-get update -y
             conda config --set always_yes yes --set changeps1 no
             conda update -q conda
+            echo ------ conda info
             conda info -a
+            echo ------ setting up env
             conda create -q -n testenv python=$PYTHON_VERSION
+      - run:
+          name: Setup package
+          command: |
             conda activate testenv
             python setup.py install
             pip install -r requirements_dev.txt
       - run:
           name: Run tests
           command: |
+            echo $(which pytest)
+            conda activate testenv
             echo $(which pytest)
   test-3.6:
     <<: *test-template

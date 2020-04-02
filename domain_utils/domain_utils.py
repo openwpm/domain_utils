@@ -119,7 +119,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     """
     Returns a url stripped to just the beginning and end, or more formally,
-    (scheme)?+netloc+path
+    ``(scheme)?+netloc+path``.
     For example ``https://my.domain.net/a/path/to/a/file.html#anchor?a=1``
     becomes ``my.domain.net/a/path/to/a/file.html``
 
@@ -127,15 +127,15 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     `urllib.parse.urlparse <https://docs.python.org/3.8/library/urllib.parse.html>`_.
     Empty scheme e.g. ``my.domain.cloudfront.net`` are assumed to be http schemes.
 
-    If a URL has a port but no scheme, urlparse determines the scheme to 
+    If a URL has a port but no scheme, urlparse determines the scheme to
     be the hostname and we do not handle this special case. In this case,
-    the url will be treated as a non_http_scheme and the return value will
+    the url will be treated as a non-http scheme and the return value will
     be determined by the ``drop_non_http`` setting.
 
     :param url: URL to be parsed
     :type url: str
     :param scheme: If ``True``, scheme will be prepended in
-        returned result, defaults to False
+        returned result. Defaults is ``False``.
     :type scheme: bool, optional
     :param drop_non_http: Action to take if scheme is not
         ``http`` or ``https`` e.g. ``file:`` or ``about:blank``.
@@ -145,7 +145,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         if ``scheme=False``. The result for http urls will be the stripped
         url with or without the scheme as per scheme param.
         Default is ``False``.
-    :type non_http_scheme: bool, optional
+    :type drop_non_http: bool, optional
     :param use_netloc: If ``True`` urlparse's netloc will be used.
         If ``False`` urlparse's host will be returned. Using netloc means 
         that a port is included, for example, if it was in the path.

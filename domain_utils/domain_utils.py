@@ -116,61 +116,81 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     return subparts
 
 
-def get_stripped_url(url, scheme=False, non_http_scheme=None):
+def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     """
-    Returns a url stripped to (scheme)?+netloc+path
+    Returns a url stripped to just the beginning and end, or more formally,
+    (scheme)?+netloc+path
     For example ``https://my.domain.net/a/path/to/a/file.html#anchor?a=1``
     becomes ``my.domain.net/a/path/to/a/file.html``
 
+    URL parsing is done using std lib
+    `urllib.parse.urlparse <https://docs.python.org/3.8/library/urllib.parse.html>`_.
+    Empty scheme e.g. ``my.domain.cloudfront.net`` are assumed to be http schemes.
 
-    URL parsing is done using std lib urllib.parse.urlparse
-    Using netloc means that a port is included, for example,
-    if it was in the path.
-    The method strips just the beginning and end being stripped.
+    If a URL has a port but no scheme, urlparse determines the scheme to 
+    be the hostname and we do not handle this special case. In this case,
+    the url will be treated as a non_http_scheme and the return value will
+    be determined by the ``drop_non_http`` setting.
 
     :param url: URL to be parsed
     :type url: str
-    :param scheme: If True, scheme will be prepended in
+    :param scheme: If ``True``, scheme will be prepended in
         returned result, defaults to False
     :type scheme: bool, optional
-    :param non_http_scheme: Action to take if scheme is not
+    :param drop_non_http: Action to take if scheme is not
         ``http`` or ``https`` e.g. ``file:`` or ``about:blank``.
-        If None, return empty string.
-        If ``self``, return the original URL.
-        Default is None.
-    :type non_http_scheme: None or ``"self"``, optional
+        If ``True``, the result for non http urls will be an empty string
+        If ``False``, the result for non http urls will be the original url,
+        not further processed e.g. ``about:blank`` -> ``about:blank`` even
+        if ``scheme=False``. The result for http urls will be the stripped
+        url with or without the scheme as per scheme param.
+        Default is ``False``.
+    :type non_http_scheme: bool, optional
+    :param use_netloc: If ``True`` urlparse's netloc will be used.
+        If ``False`` urlparse's host will be returned. Using netloc means 
+        that a port is included, for example, if it was in the path.
+        Default is ``True``.
+    :type use_netloc: bool, optional
 
     :return: Returns a url stripped to (scheme)?+netloc+path.
         Returns empty string if appropriate.
     :rtype: str
     """
-    if non_http_scheme not in [None, 'self']:
-        raise ValueError('non_http_scheme must be either `None` or `self`')
     purl = urlparse(url)
-
     _scheme = purl.scheme
-    scheme_out = ''
-    netloc_out = purl.netloc
-    path_out = purl.path
 
-    if _scheme not in ['http', 'https']:
-        if non_http_scheme == 'self':
-            scheme = True
-        if non_http_scheme is None:
-            # e.g. in the case of about:blank, the path is 'blank', but we want
-            # to return nothing
-            path_out = ''
+    # Handle non http schemes
+    if _scheme not in ['http', 'https', '']:
+        if drop_non_http is True:
+            return ''
+        if drop_non_http is False:
+            return url
+
+    if _scheme == '':
+        # From the docs: "urlparse recognizes a netloc only
+        # if it is properly introduced by ‘//’". So we
+        # prepend to get results we expect.
+        url = '//{url}'.format(url=url)
+
+    purl = urlparse(url)
+    scheme_out = ''
+    loc_out = ''
+    path_out = purl.path
 
     if scheme is True:
         if _scheme in ['http', 'https']:
             scheme_out = '{scheme}://'.format(scheme=_scheme)
-        elif _scheme == '':
-            scheme_out = ''
         else:
-            scheme_out = '{scheme}:'.format(scheme=_scheme)
+            # Should only get here if scheme is ''
+            scheme_out = '{scheme}'.format(scheme=_scheme)
 
-    return '{scheme_out}{netloc_out}{path_out}'.format(
+    if use_netloc is True:
+        loc_out = purl.netloc
+    else:
+        loc_out = purl.hostname
+
+    return '{scheme_out}{loc_out}{path_out}'.format(
         scheme_out=scheme_out,
-        netloc_out=netloc_out,
+        loc_out=loc_out,
         path_out=path_out,
-        )
+    )

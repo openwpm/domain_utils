@@ -1,0 +1,46 @@
+version: 2
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-3.5
+      - test-3.6
+      - test-3.7
+      - test-3.8
+jobs:
+  test-3.5: &test-template
+    docker:
+      - image: continuumio/miniconda3
+    environment:
+	  PYTHON_VERSION: 3.5
+    steps:
+      - checkout
+      - run:
+          name: Setup
+          command: |
+			apt-get update -y
+			conda config --set always_yes yes --set changeps1 no
+			conda update -q conda
+			conda info -a
+			conda env create -q -n testenv python=$PYTHON_VERSION
+			conda activate testenv
+			python setup.py install
+			pip install -r requirements_dev.txt
+      - run:
+          name: Run tests
+          command: |
+            echo $(which pytest)
+  test-3.6:
+    <<: *test-template
+    docker:
+      - image: continuumio/miniconda3
+    environment:
+	  PYTHON_VERSION: 3.6
+  test-3.7:
+    <<: *test-template
+    environment:
+	  PYTHON_VERSION: 3.7
+  test-3.8:
+    <<: *test-template
+    environment:
+	  PYTHON_VERSION: 3.8

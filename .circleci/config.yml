@@ -40,7 +40,10 @@ jobs:
           command: |
             source "$HOME/miniconda/etc/profile.d/conda.sh"
             conda activate testenv
-            echo $(which pytest)
+            flake8 tests
+            flake8 domain_utils
+            coverage run --source domain_utils -m pytest
+            coverage report -m
   test-3.6:
     <<: *test-template
     environment:

@@ -25,7 +25,8 @@ install:
 script:
   - conda activate env
   - echo $(which coverage)
-  - flake8 tests
+  #- flake8 tests
   - flake8 domain_utils
-  - coverage run --source domain_utils -m pytest
-  - coverage report -m
+  #- coverage run --source domain_utils -m pytest
+  #- coverage report -m
+  - py.test

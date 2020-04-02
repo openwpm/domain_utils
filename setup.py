@@ -15,15 +15,6 @@ requirements = [
     'publicsuffix',
 ]
 
-setup_requirements = [
-    'pytest-runner',
-]
-
-test_requirements = [
-    'pytest>=3', 
-    'pytest-flake8', 
-]
-
 setup(
     author="Sarah Bird",
     author_email='sbird@mozilla.com',
@@ -47,9 +38,6 @@ setup(
     keywords='domain_utils',
     name='domain_utils',
     packages=find_packages(include=['domain_utils', 'domain_utils.*']),
-    setup_requires=setup_requirements,
-    test_suite='tests',
-    tests_require=test_requirements,
     url='https://github.com/mozilla/domain_utils',
     version='0.4.0',
     zip_safe=False,

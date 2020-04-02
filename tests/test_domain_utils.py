@@ -107,6 +107,8 @@ def test_get_stripped_url_returns_port_if_present_and_use_netloc_false():
 
 port_no_schema_msg = """
 urlparse does not have a good way to handle a url with a port but no scheme."""
+
+
 @pytest.mark.xfail(reason=port_no_schema_msg)
 def test_get_stripped_with_port_when_no_scheme():
     url = 'my.example.com:8080/path/to/webapp.htm?aced=1'

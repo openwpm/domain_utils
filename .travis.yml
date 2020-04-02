@@ -16,13 +16,15 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - conda activate test-environment
+  - conda create -q -n env python=$TRAVIS_PYTHON_VERSION
+  - conda activate env
   # Install package for testing
   - python setup.py install
   - pip install -r requirements_dev.txt
 
 script:
+  - conda activate env
+  - echo $(which coverage)
   - flake8 tests
   - flake8 domain_utils
   - coverage run --source domain_utils -m pytest

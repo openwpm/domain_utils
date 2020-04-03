@@ -42,7 +42,7 @@ def test_get_stripped_url_path():
 
 def test_get_stripped_url_relative_url():
     result = du.get_stripped_url('/my/path/is.html')
-    assert result is '/my/path/is.html'
+    assert result == '/my/path/is.html'
 
 
 def test_get_stripped_url_no_path_and_drop_non_http_false():

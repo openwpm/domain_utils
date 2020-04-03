@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'ipaddress',
-    'publicsuffix',
+    'tldextract==2.2.2'
 ]
 
 setup(

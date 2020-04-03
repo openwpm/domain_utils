@@ -14,12 +14,16 @@ def test_get_ps_plus_one_no_https():
 
 def test_get_ps_plus_one_on_about_blank():
     result = du.get_ps_plus_1('about:blank')
-    assert result is None
+    assert result == ''
 
 
 def test_get_ps_plus_one_on_relative_url():
     result = du.get_ps_plus_1('/my/path/is.html')
-    assert result is None
+    assert result == ''
+
+
+def test_get_ps_plus_1_on_vanilla_public_suffix():
+    assert du.get_ps_plus_1('http://www.google.com') == 'google.com'
 
 
 def test_get_ps_plus_1_on_exotic_public_suffix():
@@ -27,7 +31,7 @@ def test_get_ps_plus_1_on_exotic_public_suffix():
 
 
 def test_get_ps_plus_1_on_data_url():
-    assert du.get_ps_plus_1("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAA") is None
+    assert du.get_ps_plus_1("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAA") == ''
 
 
 def test_get_ps_plus_1_on_fbsbx_example():
@@ -39,6 +43,12 @@ def test_get_ps_plus_1_on_fbsbx_example():
 def test_get_ps_plus_1_on_ip_addresses():
     assert du.get_ps_plus_1('http://192.168.1.1') == '192.168.1.1'
     assert du.get_ps_plus_1('http://127.0.0.1/foo.html') == '127.0.0.1'
+
+
+def test_get_ps_plus_1_on_url_with_port():
+    url = 'http://my.example.com:8080/path/to/webapp.htm?aced=1'
+    result = du.get_ps_plus_1(url)
+    assert result == 'example.com'
 
 
 def test_get_stripped_url_params():
@@ -159,3 +169,9 @@ def test_get_stripped_url_document_behavior_with_port_when_no_scheme():
     assert result == 'my.example.com:8080/path/to/webapp.htm?aced=1'
 
 # End of url with port but no scheme
+
+
+def test_get_stripped_url_when_no_path_requested():
+    url = 'my.example.com/path/to/webapp.htm?aced=1'
+    result = du.get_stripped_url(url, include_path=False)
+    assert result == 'my.example.com'

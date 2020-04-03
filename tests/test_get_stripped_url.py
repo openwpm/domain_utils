@@ -120,9 +120,3 @@ def test_get_stripped_url_document_behavior_with_port_when_no_scheme():
     assert result == 'my.example.com:8080/path/to/webapp.htm?aced=1'
 
 # End of url with port but no scheme
-
-
-def test_get_stripped_url_when_no_path_requested():
-    url = 'my.example.com/path/to/webapp.htm?aced=1'
-    result = get_stripped_url(url, include_path=False)
-    assert result == 'my.example.com'

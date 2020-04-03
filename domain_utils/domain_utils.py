@@ -31,6 +31,25 @@ def is_ip_address(hostname):
 
 
 @load_and_update_extractor
+def _get_tld_extract(url, **kwargs):
+    extractor = kwargs.get('extractor')
+    if not isinstance(extractor, TLDExtract):
+        raise ValueError(
+            "A tldextract::TLDExtract instance must be passed using the "
+            "`extractor` keyword argument.")
+
+    scheme = kwargs.get('scheme', True)
+    drop_non_http = kwargs.get('drop_non_http', True)
+    use_netloc = kwargs.get('use_netloc', True)
+    stripped = get_stripped_url(
+            url,
+            scheme=scheme,
+            drop_non_http=drop_non_http,
+            use_netloc=use_netloc,
+    )
+    return extractor(stripped)
+
+
 def get_ps_plus_1(url, **kwargs):
     """
     Returns the eTLD+1 (aka PS+1) of the url. This will also return
@@ -54,27 +73,8 @@ def get_ps_plus_1(url, **kwargs):
         The eTLD+1 / PS+1 of the url passed in. If no eTLD+1 is detectable,
         an empty string will be returned.
     """
-    extractor = kwargs.get('extractor')
-    if not isinstance(extractor, TLDExtract):
-        raise ValueError(
-            "A tldextract::TLDExtract instance must be passed using the "
-            "`extractor` keyword argument.")
-
-    scheme = kwargs.get('scheme', True)
-    drop_non_http = kwargs.get('drop_non_http', True)
-    use_netloc = kwargs.get('use_netloc', True)
-    include_path = kwargs.get('include_path', False)
-    stripped = get_stripped_url(
-            url,
-            scheme=scheme,
-            drop_non_http=drop_non_http,
-            use_netloc=use_netloc,
-            include_path=include_path,
-    )
-    if stripped == '':
-        return ''
-    parsed = extractor(stripped)
-    if is_ip_address(parsed.domain):
+    parsed = _get_tld_extract(url, **kwargs)
+    if parsed.suffix == '':
         return parsed.domain
     else:
         return f'{parsed.domain}.{parsed.suffix}'
@@ -88,41 +88,51 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     For example: http://a.b.c.d.com/path?query#frag would yield:
         [a.b.c.d.com, b.c.d.com, c.d.com, d.com] if include_ps == False
         [a.b.c.d.com, b.c.d.com, c.d.com, d.com, com] if include_ps == True
-    An (optional) PublicSuffixList object can be passed with keyword arg 'psl'.
-    otherwise a version cached in the system temp directory is used.
+
+    Parameters
+    ----------
+    url : string
+        The url from which to extract the hostname parts
+    kwargs:
+        Additionally all kwargs for get_ps_plus_1, can be passed to this method.
     """
-    if 'psl' not in kwargs:
-        raise ValueError(
-            "A PublicSuffixList must be passed as a keyword argument.")
-    hostname = urlparse(url).hostname
+    ext = _get_tld_extract(url, **kwargs)
+    ps_plus_1 = get_ps_plus_1(url, **kwargs)
 
     # If an IP address, just return a single item list with the IP
-    if is_ip_address(hostname):
-        return [hostname]
-
-    subparts = list()
-    ps_plus_1 = kwargs['psl'].get_public_suffix(hostname)
+    if is_ip_address(ext.domain):
+        return [ext.domain]
 
     # We expect all ps_plus_1s to have at least one '.'
-    # If they don't, the url was likely malformed, so we'll just return an
-    # empty list
+    # If they don't, the url was likely malformed, so we'll just 
+    # return an empty list
     if '.' not in ps_plus_1:
         return []
-    subdomains = hostname[:-(len(ps_plus_1)+1)].split('.')
-    if subdomains == ['']:
-        subdomains = []
-    for i in range(len(subdomains)):
-        subparts.append('.'.join(subdomains[i:])+'.'+ps_plus_1)
-    subparts.append(ps_plus_1)
+
+    # Build a string of the URL except the suffix
+    domain_less_ps = '.'.join([
+        url_part for url_part
+        in [ext.subdomain, ext.domain]
+        if url_part != ''
+    ])
+
+    # Assemble subparts list
+    subparts = []
+
+    if domain_less_ps != '':
+        domain_parts_to_pop = list(reversed(domain_less_ps.split('.')))
+        while len(domain_parts_to_pop) > 0:
+            domain_parts = list(reversed(domain_parts_to_pop)) + [ext.suffix]
+            subparts.append('.'.join(domain_parts))
+            domain_parts_to_pop.pop()
+
     if include_ps:
-        try:
-            subparts.append(ps_plus_1[ps_plus_1.index('.')+1:])
-        except Exception:
-            pass
+        subparts.append(ext.suffix)
+
     return subparts
 
 
-def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, include_path=True):
+def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     """
     Returns a url stripped to just the beginning and end, or more formally,
     ``(scheme)?+(netloc|hostname)+(path)?``.
@@ -156,9 +166,6 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, in
         that a port is included, for example, if it was in the path.
         Default is ``True``.
     :type use_netloc: bool, optional
-    :param include_path: If ``True`` return value will include the 
-        url path. Default is ``True``.
-    :type include_path: bool, optional
     :return: Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
         Returns empty string if appropriate.
     :rtype: str
@@ -182,7 +189,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, in
     purl = urlparse(url)
     scheme_out = ''
     loc_out = ''
-    path_out = ''
+    path_out = purl.path
 
     if scheme is True:
         if _scheme in ['http', 'https']:
@@ -195,9 +202,6 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, in
         loc_out = purl.netloc
     else:
         loc_out = purl.hostname
-
-    if include_path is True:
-        path_out = purl.path
 
     return '{scheme_out}{loc_out}{path_out}'.format(
         scheme_out=scheme_out,

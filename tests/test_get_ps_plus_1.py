@@ -2,6 +2,7 @@ import pytest
 from domain_utils import get_ps_plus_1
 from tldextract import TLDExtract
 
+
 def test_get_ps_plus_one_cloudfront():
     result = get_ps_plus_1('https://my.domain.cloudfront.net')
     assert result == 'domain.cloudfront.net'
@@ -18,8 +19,11 @@ def test_get_ps_plus_one_on_about_blank():
 
 
 def test_get_ps_plus_one_on_relative_url():
-    result = get_ps_plus_1('/my/path/is.html')
-    assert result == ''
+    assert get_ps_plus_1('/my/path/is.html') == ''
+
+
+def test_when_anchor():
+    assert get_ps_plus_1('http://www.google.com#anchor') == 'google.com'
 
 
 def test_get_ps_plus_1_on_vanilla_public_suffix():
@@ -46,9 +50,7 @@ def test_get_ps_plus_1_on_ip_addresses():
 
 
 def test_get_ps_plus_1_on_url_with_port():
-    url = 'http://my.example.com:8080/path/to/webapp.htm?aced=1'
-    result = get_ps_plus_1(url)
-    assert result == 'example.com'
+    assert get_ps_plus_1('http://my.example.com:8080/path/to/webapp.htm?aced=1') == 'example.com'
 
 
 def test_extractor_none_raises_an_issue():
@@ -72,4 +74,3 @@ def test_extractor_with_custom_tld_extract_instance_successful(tmp_path):
     url = 'http://foo.bar.moz.illa/path/to/webapp.htm?aced=1'
     result = get_ps_plus_1(url, extractor=custom_extractor)
     assert result == 'bar.moz.illa'
-    

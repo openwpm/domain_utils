@@ -11,7 +11,6 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'ipaddress==1.0.23',
     'publicsuffix==1.1.1',
 ]
 

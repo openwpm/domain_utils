@@ -6,8 +6,9 @@
 .. image:: https://img.shields.io/pypi/v/domain_utils.svg
         :target: https://pypi.python.org/pypi/domain_utils
 
-.. image:: https://img.shields.io/travis/mozilla/domain_utils.svg
-        :target: https://travis-ci.org/mozilla/domain_utils
+.. image:: https://img.shields.io/circleci/build/github/mozilla/domain_utils/master
+        :target: https://app.circleci.com/pipelines/github/mozilla/domain_utils
+        :alt: CircleCI
 
 .. image:: https://readthedocs.org/projects/domain-utils/badge/?version=latest
         :target: https://domain-utils.readthedocs.io/en/latest/?badge=latest

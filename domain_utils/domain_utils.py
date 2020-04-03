@@ -104,7 +104,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
         return [ext.domain]
 
     # We expect all ps_plus_1s to have at least one '.'
-    # If they don't, the url was likely malformed, so we'll just 
+    # If they don't, the url was likely malformed, so we'll just
     # return an empty list
     if '.' not in ps_plus_1:
         return []

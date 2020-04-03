@@ -20,6 +20,7 @@ def test_get_ps_plus_one_on_relative_url():
     result = du.get_ps_plus_1('/my/path/is.html')
     assert result is None
 
+
 def test_get_stripped_url_params():
     url = 'https://my.domain.cloudfront.net?a=1&b=2'
     result = du.get_stripped_url(url)
@@ -112,8 +113,7 @@ def test_get_stripped_url_returns_port_if_present_and_use_netloc_false():
 # that documents the actual behavior
 ###############################################
 
-port_no_schema_msg = """
-urlparse does not have a good way to handle a url with a port but no scheme."""
+port_no_schema_msg = "urlparse does not have a good way to handle a url with a port but no scheme."  # noqa
 
 
 @pytest.mark.xfail(reason=port_no_schema_msg)

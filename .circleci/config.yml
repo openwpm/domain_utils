@@ -3,16 +3,15 @@ workflows:
   version: 2
   test:
     jobs:
-      - test-3.5
       - test-3.6
       - test-3.7
       - test-3.8
 jobs:
-  test-3.5: &test-template
+  test-3.6: &test-template
     docker:
       - image: cimg/base:2020.01
     environment:
-      PYTHON_VERSION: 3.5
+      PYTHON_VERSION: 3.6
     steps:
       - checkout
       - run:
@@ -44,10 +43,6 @@ jobs:
             flake8 domain_utils
             coverage run --source domain_utils -m pytest
             coverage report -m
-  test-3.6:
-    <<: *test-template
-    environment:
-      PYTHON_VERSION: 3.6
   test-3.7:
     <<: *test-template
     environment:

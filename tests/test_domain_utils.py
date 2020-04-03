@@ -40,6 +40,11 @@ def test_get_stripped_url_path():
     assert result == 'my.domain.cloudfront.net/a/path/to/a/file.html'
 
 
+def test_get_stripped_url_relative_url():
+    result = du.get_stripped_url('/my/path/is.html')
+    assert result is '/my/path/is.html'
+
+
 def test_get_stripped_url_no_path_and_drop_non_http_false():
     url = 'https://my.domain.cloudfront.net#anchor'
     result = du.get_stripped_url(url)

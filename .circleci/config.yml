@@ -27,7 +27,7 @@ jobs:
             echo ------ conda info
             conda info -a
             echo ------ setting up env
-            conda create -q -n testenv python=$PYTHON_VERSION
+            conda create -q -n testenv python=$PYTHON_VERSION pip
       - run:
           name: Setup package
           command: |

@@ -14,7 +14,7 @@ def load_and_update_extractor(function):
                 wrapper.extractor = extractor
             return function(*args, extractor=wrapper.extractor, **kwargs)
         else:
-            return function(*args, extractor=wrapper.extractor, **kwargs)
+            return function(*args, **kwargs)
     wrapper.extractor = None
     return wrapper
 
@@ -31,7 +31,7 @@ def is_ip_address(hostname):
 
 
 @load_and_update_extractor
-def get_ps_plus_1(url, extractor=None, **kwargs):
+def get_ps_plus_1(url, **kwargs):
     """
     Returns the eTLD+1 (aka PS+1) of the url. This will also return
     an IP address if the hostname of the url is a valid IP address.
@@ -54,7 +54,8 @@ def get_ps_plus_1(url, extractor=None, **kwargs):
         The eTLD+1 / PS+1 of the url passed in. If no eTLD+1 is detectable,
         an empty string will be returned.
     """
-    if extractor is None:
+    extractor = kwargs.get('extractor')
+    if not isinstance(extractor, TLDExtract):
         raise ValueError(
             "A tldextract::TLDExtract instance must be passed using the "
             "`extractor` keyword argument.")

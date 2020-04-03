@@ -4,14 +4,15 @@ from tldextract import TLDExtract
 from urllib.parse import urlparse
 
 
+_extractor = TLDExtract(include_psl_private_domains=True)
+_extractor.update()
+
 def load_and_update_extractor(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if 'extractor' not in kwargs:
             if wrapper.extractor is None:
-                extractor = TLDExtract(include_psl_private_domains=True)
-                extractor.update()
-                wrapper.extractor = extractor
+                wrapper.extractor = _extractor
             return function(*args, extractor=wrapper.extractor, **kwargs)
         else:
             return function(*args, **kwargs)
@@ -173,18 +174,27 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     purl = urlparse(url)
     _scheme = purl.scheme
 
+    # To handle the case where we have no scheme, but we have a port
+    # we have the following heuristic. Does scheme have a . in it
+    # which is stdlib behavior when not recognizing a netloc due to
+    # lack of //. If TLDExtract, can find a suffix in the _scheme
+    # then it's probably a domain without an http.
+    if '.' in _scheme:
+        # From the docs: "urlparse recognizes a netloc only
+        # if it is properly introduced by ‘//’". So we
+        # prepend to get results we expect.
+        if _extractor(_scheme).suffix != '' or is_ip_address(_scheme):
+            url = '//{url}'.format(url=url)
+
+    purl = urlparse(url)
+    _scheme = purl.scheme
+
     # Handle non http schemes
     if _scheme not in ['http', 'https', '']:
         if drop_non_http is True:
             return ''
         if drop_non_http is False:
             return url
-
-    if _scheme == '':
-        # From the docs: "urlparse recognizes a netloc only
-        # if it is properly introduced by ‘//’". So we
-        # prepend to get results we expect.
-        url = '//{url}'.format(url=url)
 
     purl = urlparse(url)
     scheme_out = ''

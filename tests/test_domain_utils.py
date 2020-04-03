@@ -22,7 +22,7 @@ def test_get_ps_plus_one_on_relative_url():
     assert result is None
 
 
-def test_get_get_stripped_url_params():
+def test_get_stripped_url_params():
     url = 'https://my.domain.cloudfront.net?a=1&b=2'
     result = du.get_stripped_url(url)
     assert result == 'my.domain.cloudfront.net'

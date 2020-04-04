@@ -10,8 +10,8 @@
         :target: https://app.circleci.com/pipelines/github/mozilla/domain_utils
         :alt: CircleCI
 
-.. image:: https://readthedocs.org/projects/domain-utils/badge/?version=latest
-        :target: https://domain-utils.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/domain-utils/badge/?version=v0.5.0
+        :target: https://domain-utils.readthedocs.io/en/v0.5.0/
         :alt: Documentation Status
 
 

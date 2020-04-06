@@ -4,15 +4,13 @@ from tldextract import TLDExtract
 from urllib.parse import urlparse
 
 
-_extractor = TLDExtract(include_psl_private_domains=True)
-_extractor.update()
-
-
 def _load_and_update_extractor(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if 'extractor' not in kwargs:
             if wrapper.extractor is None:
+                _extractor = TLDExtract(include_psl_private_domains=True)
+                _extractor.update()
                 wrapper.extractor = _extractor
             return function(*args, extractor=wrapper.extractor, **kwargs)
         else:
@@ -87,16 +85,17 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     """
     Returns a list of slices of a url's hostname down to the eTLD+1 / PS+1.
 
-    If ``include_ps`` is set, the hostname slices will include the public suffix
-    For example: ``http://a.b.c.d.com/path?query#frag`` would yield:
-
-     * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
-     * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
 
     Parameters
     ----------
     url : string
         The url from which to extract the hostname parts
+    include_ps : boolean, optional
+        If ``include_ps`` is set, the hostname slices will include the public suffix
+        For example: ``http://a.b.c.d.com/path?query#frag`` would yield:
+
+        * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
+        * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
     kwargs:
         Additionally all kwargs for get_ps_plus_1, can be passed to this method.
 
@@ -141,7 +140,8 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     return subparts
 
 
-def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
+@_load_and_update_extractor
+def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, extractor=None):
     """
     Returns a url stripped to just the beginning and end.
 
@@ -182,6 +182,9 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         If ``False`` urlparse's host will be returned. Using netloc means
         that a port is included, for example, if it was in the path.
         Default is ``True``.
+    extractor : tldextract::TLDExtract, optional
+        An (optional) tldextract::TLDExtract instance can be passed with
+        keyword `extractor`, otherwise we create and update one automatically.
 
     Returns
     -------
@@ -201,7 +204,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         # From the docs: "urlparse recognizes a netloc only
         # if it is properly introduced by ‘//’". So we
         # prepend to get results we expect.
-        if _extractor(_scheme).suffix != '' or is_ip_address(_scheme):
+        if extractor(_scheme).suffix != '' or is_ip_address(_scheme):
             url = '//{url}'.format(url=url)
 
     purl = urlparse(url)

@@ -8,7 +8,7 @@ _extractor = TLDExtract(include_psl_private_domains=True)
 _extractor.update()
 
 
-def load_and_update_extractor(function):
+def _load_and_update_extractor(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if 'extractor' not in kwargs:
@@ -32,7 +32,7 @@ def is_ip_address(hostname):
         return False
 
 
-@load_and_update_extractor
+@_load_and_update_extractor
 def _get_tld_extract(url, **kwargs):
     extractor = kwargs.get('extractor')
     if not isinstance(extractor, TLDExtract):
@@ -82,14 +82,16 @@ def get_ps_plus_1(url, **kwargs):
         return f'{parsed.domain}.{parsed.suffix}'
 
 
-@load_and_update_extractor
+@_load_and_update_extractor
 def hostname_subparts(url, include_ps=False, **kwargs):
     """
-    Returns a list of slices of a url's hostname down to the PS+1
-    If `include_ps` is set, the hostname slices will include the public suffix
-    For example: http://a.b.c.d.com/path?query#frag would yield:
-        [a.b.c.d.com, b.c.d.com, c.d.com, d.com] if include_ps == False
-        [a.b.c.d.com, b.c.d.com, c.d.com, d.com, com] if include_ps == True
+    Returns a list of slices of a url's hostname down to the eTLD+1 / PS+1.
+
+    If ``include_ps`` is set, the hostname slices will include the public suffix
+    For example: ``http://a.b.c.d.com/path?query#frag`` would yield:
+
+     * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
+     * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
 
     Parameters
     ----------
@@ -97,6 +99,11 @@ def hostname_subparts(url, include_ps=False, **kwargs):
         The url from which to extract the hostname parts
     kwargs:
         Additionally all kwargs for get_ps_plus_1, can be passed to this method.
+
+    Returns
+    -------
+    list (string)
+        List of slices of of a url's hostname down to the eTLD+1 / PS+1.
     """
     ext = _get_tld_extract(url, **kwargs)
     ps_plus_1 = get_ps_plus_1(url, **kwargs)
@@ -136,25 +143,33 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     """
-    Returns a url stripped to just the beginning and end, or more formally,
-    ``(scheme)?+(netloc|hostname)+(path)?``.
+    Returns a url stripped to just the beginning and end.
+
+    More formally it returns ``(scheme)?+(netloc|hostname)+(path)?``.
+
     For example ``https://my.domain.net/a/path/to/a/file.html#anchor?a=1``
     becomes ``my.domain.net/a/path/to/a/file.html``
     URL parsing is done using std lib
     `urllib.parse.urlparse
     <https://docs.python.org/3.8/library/urllib.parse.html>`_.
+
     Empty scheme e.g. ``my.domain.cloudfront.net``
     are assumed to be http schemes.
+
     If a URL has a port but no scheme, urlparse determines the scheme to
     be the hostname and we do not handle this special case. In this case,
     the url will be treated as a non-http scheme and the return value will
     be determined by the ``drop_non_http`` setting.
-    :param url: URL to be parsed
-    :type url: str
-    :param scheme: If ``True``, scheme will be prepended in
-        returned result. Defaults is ``False``.
-    :type scheme: bool, optional
-    :param drop_non_http: Action to take if scheme is not
+
+    Parameters
+    ----------
+    url : string
+        The URL to be parsed
+    scheme : boolean, optional
+        If ``True``, scheme will be prepended in returned result.
+        Default is ``False``.
+    drop_non_http : boolean, optional
+        Action to take if scheme is not
         ``http`` or ``https`` e.g. ``file:`` or ``about:blank``.
         If ``True``, the result for non http urls will be an empty string
         If ``False``, the result for non http urls will be the original url,
@@ -162,15 +177,17 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         if ``scheme=False``. The result for http urls will be the stripped
         url with or without the scheme as per scheme param.
         Default is ``False``.
-    :type drop_non_http: bool, optional
-    :param use_netloc: If ``True`` urlparse's netloc will be used.
+    use_netloc : boolean, optional
+        If ``True`` urlparse's netloc will be used.
         If ``False`` urlparse's host will be returned. Using netloc means
         that a port is included, for example, if it was in the path.
         Default is ``True``.
-    :type use_netloc: bool, optional
-    :return: Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
+
+    Returns
+    -------
+    string
+        Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
         Returns empty string if appropriate.
-    :rtype: str
     """
     purl = urlparse(url)
     _scheme = purl.scheme

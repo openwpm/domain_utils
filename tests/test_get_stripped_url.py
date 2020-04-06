@@ -1,4 +1,3 @@
-import pytest
 from domain_utils import get_stripped_url
 
 

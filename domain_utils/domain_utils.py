@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 _extractor = TLDExtract(include_psl_private_domains=True)
 _extractor.update()
 
+
 def load_and_update_extractor(function):
     @wraps(function)
     def wrapper(*args, **kwargs):

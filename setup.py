@@ -11,21 +11,19 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'ipaddress',
     'tldextract==2.2.2'
 ]
 
 setup(
     author="Sarah Bird",
     author_email='sbird@mozilla.com',
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -39,6 +37,6 @@ setup(
     name='domain_utils',
     packages=find_packages(include=['domain_utils', 'domain_utils.*']),
     url='https://github.com/mozilla/domain_utils',
-    version='0.4.0',
+    version='0.5.0',
     zip_safe=False,
 )

@@ -74,3 +74,8 @@ def test_extractor_with_custom_tld_extract_instance_successful(tmp_path):
     url = 'http://foo.bar.moz.illa/path/to/webapp.htm?aced=1'
     result = get_ps_plus_1(url, extractor=custom_extractor)
     assert result == 'bar.moz.illa'
+
+
+def test_punyencoded_url():
+    result = get_ps_plus_1('http://xn----7sbi4aadnjoecmhmg9juc.xn--p1ai')
+    assert result == 'xn----7sbi4aadnjoecmhmg9juc.xn--p1ai'

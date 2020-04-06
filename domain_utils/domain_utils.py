@@ -53,8 +53,7 @@ def _get_tld_extract(url, **kwargs):
 
 def get_ps_plus_1(url, **kwargs):
     """
-    Returns the eTLD+1 (aka PS+1) of the url. This will also return
-    an IP address if the hostname of the url is a valid IP address.
+    Returns the eTLD+1 (aka PS+1) of the url.
 
     Parameters
     ----------
@@ -72,7 +71,8 @@ def get_ps_plus_1(url, **kwargs):
     -------
     string
         The eTLD+1 / PS+1 of the url passed in. If no eTLD+1 is detectable,
-        an empty string will be returned.
+        an empty string will be returned. Returns an IP address if the hostname
+        of the url is a valid IP address.
     """
     parsed = _get_tld_extract(url, **kwargs)
     if parsed.suffix == '':
@@ -193,7 +193,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     if _scheme not in ['http', 'https', '']:
         if drop_non_http is True:
             return ''
-        if drop_non_http is False:
+        else:
             return url
 
     purl = urlparse(url)
@@ -204,9 +204,6 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     if scheme is True:
         if _scheme in ['http', 'https']:
             scheme_out = '{scheme}://'.format(scheme=_scheme)
-        else:
-            # Should only get here if scheme is ''
-            scheme_out = '{scheme}'.format(scheme=_scheme)
 
     if use_netloc is True:
         loc_out = purl.netloc

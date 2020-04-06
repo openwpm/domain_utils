@@ -1,39 +1,21 @@
-import tempfile
-import codecs
-import os
-
-from ipaddress import ip_address
 from functools import wraps
-from publicsuffix import PublicSuffixList, fetch
+from ipaddress import ip_address
+from tldextract import TLDExtract
 from urllib.parse import urlparse
 
 
-# We cache the Public Suffix List in temp directory
-PSL_CACHE_LOC = os.path.join(tempfile.gettempdir(), 'public_suffix_list.dat')
-
-
-def get_psl(location=PSL_CACHE_LOC):
-    """
-    Grabs an updated public suffix list.
-    """
-    if not os.path.isfile(location):
-        psl_file = fetch()
-        with codecs.open(location, 'w', encoding='utf8') as f:
-            f.write(psl_file.read())
-    psl_cache = codecs.open(location, encoding='utf8')
-    return PublicSuffixList(psl_cache)
-
-
-def load_psl(function):
+def load_and_update_extractor(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
-        if 'psl' not in kwargs:
-            if wrapper.psl is None:
-                wrapper.psl = get_psl()
-            return function(*args, psl=wrapper.psl, **kwargs)
+        if 'extractor' not in kwargs:
+            if wrapper.extractor is None:
+                extractor = TLDExtract(include_psl_private_domains=True)
+                extractor.update()
+                wrapper.extractor = extractor
+            return function(*args, extractor=wrapper.extractor, **kwargs)
         else:
             return function(*args, **kwargs)
-    wrapper.psl = None
+    wrapper.extractor = None
     return wrapper
 
 
@@ -48,39 +30,57 @@ def is_ip_address(hostname):
         return False
 
 
-@load_psl
+@load_and_update_extractor
+def _get_tld_extract(url, **kwargs):
+    extractor = kwargs.get('extractor')
+    if not isinstance(extractor, TLDExtract):
+        raise ValueError(
+            "A tldextract::TLDExtract instance must be passed using the "
+            "`extractor` keyword argument.")
+
+    scheme = kwargs.get('scheme', True)
+    drop_non_http = kwargs.get('drop_non_http', True)
+    use_netloc = kwargs.get('use_netloc', True)
+    stripped = get_stripped_url(
+            url,
+            scheme=scheme,
+            drop_non_http=drop_non_http,
+            use_netloc=use_netloc,
+    )
+    return extractor(stripped)
+
+
 def get_ps_plus_1(url, **kwargs):
     """
-    Returns the PS+1 of the url. This will also return
-    an IP address if the hostname of the url is a valid
-    IP address.
-    An (optional) PublicSuffixList object can be passed with keyword arg 'psl',
-    otherwise a version cached in the system temp directory is used.
+    Returns the eTLD+1 (aka PS+1) of the url.
+
+    Parameters
+    ----------
+    url : string
+        The url from which to extract the eTLD+1 / PS+1
+    extractor : tldextract::TLDExtract, optional
+        An (optional) tldextract::TLDExtract instance can be passed with
+        keyword `extractor`, otherwise we create and update one automatically.
+    kwargs:
+        The method preprocesses the url with ``get_stripped_url`` before
+        extracting the domain. You can pass in ``get_stripped_url`` parameters
+        if you wish to change the behavior in some specific way.
+
+    Returns
+    -------
+    string
+        The eTLD+1 / PS+1 of the url passed in. If no eTLD+1 is detectable,
+        an empty string will be returned. Returns an IP address if the hostname
+        of the url is a valid IP address.
     """
-    if 'psl' not in kwargs:
-        raise ValueError(
-            "A PublicSuffixList must be passed as a keyword argument.")
-
-    if urlparse(url).scheme == '':
-        purl = urlparse('http://{url}'.format(url=url))
+    parsed = _get_tld_extract(url, **kwargs)
+    if parsed.suffix == '':
+        return parsed.domain
     else:
-        purl = urlparse(url)
-
-    hostname = purl.hostname
-    if is_ip_address(hostname):
-        return hostname
-    elif hostname is None:
-        # Possible reasons hostname is None, `url` is:
-        # * malformed
-        # * a relative url
-        # * a `javascript:` or `data:` url
-        # * many others
-        return
-    else:
-        return kwargs['psl'].get_public_suffix(hostname)
+        return f'{parsed.domain}.{parsed.suffix}'
 
 
-@load_psl
+@load_and_update_extractor
 def hostname_subparts(url, include_ps=False, **kwargs):
     """
     Returns a list of slices of a url's hostname down to the PS+1
@@ -88,44 +88,54 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     For example: http://a.b.c.d.com/path?query#frag would yield:
         [a.b.c.d.com, b.c.d.com, c.d.com, d.com] if include_ps == False
         [a.b.c.d.com, b.c.d.com, c.d.com, d.com, com] if include_ps == True
-    An (optional) PublicSuffixList object can be passed with keyword arg 'psl'.
-    otherwise a version cached in the system temp directory is used.
+
+    Parameters
+    ----------
+    url : string
+        The url from which to extract the hostname parts
+    kwargs:
+        Additionally all kwargs for get_ps_plus_1, can be passed to this method.
     """
-    if 'psl' not in kwargs:
-        raise ValueError(
-            "A PublicSuffixList must be passed as a keyword argument.")
-    hostname = urlparse(url).hostname
+    ext = _get_tld_extract(url, **kwargs)
+    ps_plus_1 = get_ps_plus_1(url, **kwargs)
 
     # If an IP address, just return a single item list with the IP
-    if is_ip_address(hostname):
-        return [hostname]
-
-    subparts = list()
-    ps_plus_1 = kwargs['psl'].get_public_suffix(hostname)
+    if is_ip_address(ext.domain):
+        return [ext.domain]
 
     # We expect all ps_plus_1s to have at least one '.'
-    # If they don't, the url was likely malformed, so we'll just return an
-    # empty list
+    # If they don't, the url was likely malformed, so we'll just
+    # return an empty list
     if '.' not in ps_plus_1:
         return []
-    subdomains = hostname[:-(len(ps_plus_1)+1)].split('.')
-    if subdomains == ['']:
-        subdomains = []
-    for i in range(len(subdomains)):
-        subparts.append('.'.join(subdomains[i:])+'.'+ps_plus_1)
-    subparts.append(ps_plus_1)
+
+    # Build a string of the URL except the suffix
+    domain_less_ps = '.'.join([
+        url_part for url_part
+        in [ext.subdomain, ext.domain]
+        if url_part != ''
+    ])
+
+    # Assemble subparts list
+    subparts = []
+
+    if domain_less_ps != '':
+        domain_parts_to_pop = list(reversed(domain_less_ps.split('.')))
+        while len(domain_parts_to_pop) > 0:
+            domain_parts = list(reversed(domain_parts_to_pop)) + [ext.suffix]
+            subparts.append('.'.join(domain_parts))
+            domain_parts_to_pop.pop()
+
     if include_ps:
-        try:
-            subparts.append(ps_plus_1[ps_plus_1.index('.')+1:])
-        except Exception:
-            pass
+        subparts.append(ext.suffix)
+
     return subparts
 
 
 def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     """
     Returns a url stripped to just the beginning and end, or more formally,
-    ``(scheme)?+netloc+path``.
+    ``(scheme)?+(netloc|hostname)+(path)?``.
     For example ``https://my.domain.net/a/path/to/a/file.html#anchor?a=1``
     becomes ``my.domain.net/a/path/to/a/file.html``
     URL parsing is done using std lib
@@ -156,7 +166,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         that a port is included, for example, if it was in the path.
         Default is ``True``.
     :type use_netloc: bool, optional
-    :return: Returns a url stripped to (scheme)?+netloc+path.
+    :return: Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
         Returns empty string if appropriate.
     :rtype: str
     """
@@ -167,7 +177,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     if _scheme not in ['http', 'https', '']:
         if drop_non_http is True:
             return ''
-        if drop_non_http is False:
+        else:
             return url
 
     if _scheme == '':
@@ -184,9 +194,6 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     if scheme is True:
         if _scheme in ['http', 'https']:
             scheme_out = '{scheme}://'.format(scheme=_scheme)
-        else:
-            # Should only get here if scheme is ''
-            scheme_out = '{scheme}'.format(scheme=_scheme)
 
     if use_netloc is True:
         loc_out = purl.netloc

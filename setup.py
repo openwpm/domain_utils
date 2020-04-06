@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'publicsuffix==1.1.1',
+    'tldextract==2.2.2'
 ]
 
 setup(

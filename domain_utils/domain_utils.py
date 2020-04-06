@@ -9,9 +9,9 @@ def _load_and_update_extractor(function):
     def wrapper(*args, **kwargs):
         if 'extractor' not in kwargs:
             if wrapper.extractor is None:
-                extractor = TLDExtract(include_psl_private_domains=True)
-                extractor.update()
-                wrapper.extractor = extractor
+                _extractor = TLDExtract(include_psl_private_domains=True)
+                _extractor.update()
+                wrapper.extractor = _extractor
             return function(*args, extractor=wrapper.extractor, **kwargs)
         else:
             return function(*args, **kwargs)
@@ -85,19 +85,20 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     """
     Returns a list of slices of a url's hostname down to the eTLD+1 / PS+1.
 
-    If ``include_ps`` is set, the hostname slices will include the public suffix
-    For example: ``http://a.b.c.d.com/path?query#frag`` would yield:
-
-     * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
-     * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
 
     Parameters
     ----------
     url : string
         The url from which to extract the hostname parts
+    include_ps : boolean, optional
+        If ``include_ps`` is set, the hostname slices will include the public suffix
+        For example: ``http://a.b.c.d.com/path?query#frag`` would yield:
+
+        * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
+        * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
     kwargs:
         Additionally all kwargs for get_ps_plus_1, can be passed to this method.
-    
+
     Returns
     -------
     list (string)
@@ -139,10 +140,11 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     return subparts
 
 
-def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
+@_load_and_update_extractor
+def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, extractor=None):
     """
     Returns a url stripped to just the beginning and end.
-    
+
     More formally it returns ``(scheme)?+(netloc|hostname)+(path)?``.
 
     For example ``https://my.domain.net/a/path/to/a/file.html#anchor?a=1``
@@ -164,7 +166,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     url : string
         The URL to be parsed
     scheme : boolean, optional
-        If ``True``, scheme will be prepended in returned result. 
+        If ``True``, scheme will be prepended in returned result.
         Default is ``False``.
     drop_non_http : boolean, optional
         Action to take if scheme is not
@@ -180,6 +182,9 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
         If ``False`` urlparse's host will be returned. Using netloc means
         that a port is included, for example, if it was in the path.
         Default is ``True``.
+    extractor : tldextract::TLDExtract, optional
+        An (optional) tldextract::TLDExtract instance can be passed with
+        keyword `extractor`, otherwise we create and update one automatically.
 
     Returns
     -------
@@ -190,18 +195,27 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True):
     purl = urlparse(url)
     _scheme = purl.scheme
 
+    # To handle the case where we have no scheme, but we have a port
+    # we have the following heuristic. Does scheme have a . in it
+    # which is stdlib behavior when not recognizing a netloc due to
+    # lack of //. If TLDExtract, can find a suffix in the _scheme
+    # then it's probably a domain without an http.
+    if '.' in _scheme:
+        # From the docs: "urlparse recognizes a netloc only
+        # if it is properly introduced by ‘//’". So we
+        # prepend to get results we expect.
+        if extractor(_scheme).suffix != '' or is_ip_address(_scheme):
+            url = '//{url}'.format(url=url)
+
+    purl = urlparse(url)
+    _scheme = purl.scheme
+
     # Handle non http schemes
     if _scheme not in ['http', 'https', '']:
         if drop_non_http is True:
             return ''
         else:
             return url
-
-    if _scheme == '':
-        # From the docs: "urlparse recognizes a netloc only
-        # if it is properly introduced by ‘//’". So we
-        # prepend to get results we expect.
-        url = '//{url}'.format(url=url)
 
     purl = urlparse(url)
     scheme_out = ''

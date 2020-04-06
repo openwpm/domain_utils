@@ -3,6 +3,14 @@ History
 =======
 
 
+0.6.0 (2020-04-06)
+------------------
+
+* Use tldextract for parsing domains (#12)
+* Use numpy style docstrings
+* Support case of no scheme and port in URL (#13)
+
+
 0.5.0 (2020-04-03)
 ------------------
 

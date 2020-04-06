@@ -93,7 +93,7 @@ def test_get_stripped_url_with_port_when_no_scheme_and_use_netloc_false():
     assert result == 'my.example.com/path/to/webapp.htm'
 
 
-def test_get_stripped_url_with_port_when_no_scheme_and_uip_and_use_netloc_false():
+def test_get_stripped_url_with_port_when_no_scheme_and_ip_and_use_netloc_false():
     url = '127.0.0.1:8080/path/to/webapp.htm?aced=1'
     result = get_stripped_url(url, use_netloc=False)
     assert result == '127.0.0.1/path/to/webapp.htm'

@@ -60,6 +60,8 @@ PyPI Release Process
 
 #. Edit the release on GitHub (e.g. https://github.com/mozilla/domain_utils/releases). Paste the release notes into the release's release page, and come up with a title for the release.
 
+#. Make docs release available at https://readthedocs.org/projects/domain-utils/.
+
 About This Checklist
 --------------------
 

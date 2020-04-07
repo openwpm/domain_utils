@@ -9,8 +9,8 @@ Contents
    :maxdepth: 1
 
    installation
-   ## api_docs
    domain_utils
+   usage
    contributing
    release
 

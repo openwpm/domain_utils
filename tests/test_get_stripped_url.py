@@ -161,3 +161,9 @@ def test_wss_urls_parsed_by_default():
     url = 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
     result = get_stripped_url(url)
     assert result == 'domain.com:8080/path/to/test.html'
+
+
+def test_wss_urls_not_parsed_if_requested():
+    url = 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
+    result = get_stripped_url(url, parse_ws=False)
+    assert result == 'wss://domain.com:8080/path/to/test.html?a=1&b=2'

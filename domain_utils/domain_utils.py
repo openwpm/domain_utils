@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 BLANK_SCHEME = 'blank'
 HTTP = 'http'
 HTTPS = 'https'
+WS = 'ws'
+WSS = 'wss'
 
 
 def _load_and_update_extractor(function):
@@ -152,6 +154,7 @@ def get_stripped_url(
         url,
         return_unparsed=True,
         scheme_default=HTTP,
+        parse_ws=True,
         scheme=False,
         use_netloc=True,
         extractor=None):
@@ -167,7 +170,8 @@ def get_stripped_url(
     <https://docs.python.org/3.8/library/urllib.parse.html>`_.
 
     A url is parsed if it has a qualifying scheme. The qualifying schemes are
-    ``http`` and ``https``. Additionally, the ``scheme_default`` parameter
+    ``http``, ``https``, ``ws`` and ``wss``. Websocket schemes can be omitted using
+    the ``parse_ws`` parameter. Additionally, the ``scheme_default`` parameter
     provides a scheme where the url doesn't contain one. The default is ``http``
     and so urls without a scheme will, by default, be considered as http and therfore
     parsed.
@@ -190,6 +194,9 @@ def get_stripped_url(
         This parameter is passed to scheme parameter of `urllib.parse.urlparse`. This
         causes urls without a scheme to return the scheme default.
         Default is ``http``.
+    parse_ws : boolean, optional
+        If ``True``, then ``ws`` and ``wss`` urls are parsed.
+        Default is ``True``.
     scheme : boolean, optional
         If ``True``, scheme will be prepended in parsed result.
         Default is ``False``.
@@ -231,6 +238,8 @@ def get_stripped_url(
 
     # Will we parse
     schemes_to_parse = [HTTP, HTTPS]
+    if parse_ws is True:
+        schemes_to_parse += [WS, WSS]
     if _scheme not in schemes_to_parse:
         if return_unparsed is True:
             return url

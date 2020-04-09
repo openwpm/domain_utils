@@ -6,40 +6,28 @@ def test_no_port():
 
 
 def test_port_in_ip():
-    assert get_port('10.0.0.1:80/path/to/index.html') is None
+    assert get_port('10.0.0.1:80/path/to/index.html') == 80
 
 
 def test_port_in_url():
-    assert get_port('example.com:80/path/to/index.html') is None
+    assert get_port('example.com:80/path/to/index.html') == 80
 
 
 def test_port_in_domain():
-    assert get_port('example.com:5000') is None
+    assert get_port('example.com:5000') == 5000
 
 
-def test_port_in_ip_strict():
-    assert get_port('10.0.0.1:80/path/to/index.html', strict=True) == 80
+def test_port_in_domain_and_path():
+    assert get_port('example.com:5000/hello-world') == 5000
 
 
-def test_port_in_url_strict():
-    assert get_port('example.com:80/path/to/index.html', strict=True) == 80
+def test_port_in_ip_no_path():
+    assert get_port('10.0.0.1:80') == 80
 
 
-def test_port_in_domain_strict():
-    assert get_port('example.com:5000', strict=True) == 5000
-
-
-def test_url_with_protocol_strict():
-    assert get_port('ws://example.com:5000', strict=True) == 5000
+def test_port_no_tld():
+    assert get_port('localhost:8000') == 8000
 
 
 def test_url_with_protocol():
     assert get_port('ws://example.com:5000') == 5000
-
-
-def test_no_port_strict():
-    assert get_port('domain.net', strict=True) is None
-
-
-def test_no_port_strict_protocol():
-    assert get_port('https://domain.net', strict=True) is None

@@ -3,6 +3,8 @@ from ipaddress import ip_address
 from tldextract import TLDExtract
 from urllib.parse import urlparse
 
+BLANK_SCHEME = 'blank'
+
 
 def _load_and_update_extractor(function):
     @wraps(function)
@@ -236,3 +238,27 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, ex
         loc_out=loc_out,
         path_out=path_out,
     )
+
+
+def get_scheme(url):
+
+    """
+    Given an url extract from it the scheme
+
+    Parameters
+    ----------
+    url: string
+        The URL from where we want to get the scheme
+
+    Returns
+    ----------
+    string
+        Returns the scheme with a default of 'blank' if no schema is provided
+    """
+
+    scheme = urlparse(url).scheme
+
+    if scheme:
+        return scheme
+    else:
+        return BLANK_SCHEME

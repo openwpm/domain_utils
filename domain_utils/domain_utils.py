@@ -241,7 +241,6 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, ex
 
 
 def get_scheme(url, no_scheme=NO_SCHEME):
-
     """
     Given an url, extract from it the scheme.
 
@@ -249,6 +248,9 @@ def get_scheme(url, no_scheme=NO_SCHEME):
     ----------
     url: string
         The URL from where we want to get the scheme
+    no_scheme: any
+        The value to use if no scheme is detected.
+        Default is ``no_scheme``
 
     Returns
     ----------

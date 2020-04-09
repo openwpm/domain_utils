@@ -30,7 +30,7 @@ setup(
     ],
     description="A collection of util functions for extracting domains from urls.",
     install_requires=requirements,
-    license="MIT license",
+    license="MPL 2.0",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='domain_utils',

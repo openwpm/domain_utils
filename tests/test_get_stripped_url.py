@@ -34,13 +34,21 @@ def test_get_stripped_url_no_scheme():
 def test_get_stripped_url_no_scheme_and_scheme_true():
     url = 'my.domain.cloudfront.net#anchor'
     result = get_stripped_url(url, scheme=True)
-    assert result == 'my.domain.cloudfront.net'
+    assert result == 'http://my.domain.cloudfront.net'
+
+
+def test_get_stripped_url_no_scheme_and_scheme_true_default_scheme_none():
+    url = 'my.domain.cloudfront.net#anchor'
+    result = get_stripped_url(url, scheme=True, scheme_default=None)
+    # This returns the original URL because only http and https schemes
+    # are parsed and the scheme_default was changed to None
+    assert result == 'my.domain.cloudfront.net#anchor'
 
 
 def test_get_stripped_url_no_scheme_and_drop_non_http_urls_true():
     # Note we assume that empty schemes are http urls
     url = 'my.domain.cloudfront.net#anchor'
-    result = get_stripped_url(url, drop_non_http=True)
+    result = get_stripped_url(url, return_unparsed=False)
     assert result == 'my.domain.cloudfront.net'
 
 
@@ -58,13 +66,13 @@ def test_get_stripped_url_with_hostname_only_and_scheme():
 
 def test_get_stripped_url_non_http_scheme_none():
     url = 'about:blank'
-    result = get_stripped_url(url, drop_non_http=True)
+    result = get_stripped_url(url, return_unparsed=False)
     assert result == ''
 
 
 def test_get_stripped_url_non_http_scheme_return_self():
     url = 'about:blank'
-    result = get_stripped_url(url, drop_non_http=False)
+    result = get_stripped_url(url, return_unparsed=True)
     assert result == url
 
 
@@ -108,3 +116,15 @@ def test_get_stripped_url_with_ip_address_and_scheme():
     url = 'http://8.8.8.8:8080/path/to/webapp.htm?aced=1'
     result = get_stripped_url(url)
     assert result == '8.8.8.8:8080/path/to/webapp.htm'
+
+
+def test_get_stripped_url_with_no_scheme_return_scheme_and_parsed_non_default_scheme():
+    url = 'domain.com/path?a=1'
+    result = get_stripped_url(url, scheme=True, scheme_default='https')
+    assert result == 'https://domain.com/path'
+
+
+def test_get_stripped_url_with_no_scheme_and_not_parsed_non_default_scheme():
+    url = 'domain.com/path?a=1'
+    result = get_stripped_url(url, scheme_default='wont_parse')
+    assert result == 'domain.com/path?a=1'

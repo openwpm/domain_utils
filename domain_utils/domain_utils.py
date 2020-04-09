@@ -264,3 +264,29 @@ def get_scheme(url, no_scheme=NO_SCHEME):
         return scheme
     else:
         return no_scheme
+
+
+def get_port(url, strict=False):
+    """
+    Given an url, extract from it port if present
+
+    Parameters
+    ----------
+    url: string
+        The URL from where we want to get the scheme
+    strict: bool
+        If the url doesn't provide the scheme or
+        doesn't start with `//` prepend it so it returns accurate results
+
+    Returns
+    ----------
+    int
+        Returns port in the url
+    """
+
+    if strict:
+        if '//' not in url:
+            _url = '//' + url
+            return urlparse(_url).port
+
+    return urlparse(url).port

@@ -250,8 +250,7 @@ def get_stripped_url(
     if _scheme not in schemes_to_parse:
         if return_unparsed is True:
             return url
-        else:
-            return ''
+        return ''
 
     scheme_out = ''
     loc_out = ''

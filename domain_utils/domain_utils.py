@@ -4,6 +4,10 @@ from tldextract import TLDExtract
 from urllib.parse import urlparse
 
 NO_SCHEME = 'no_scheme'
+HTTP = 'http'
+HTTPS = 'https'
+WS = 'ws'
+WSS = 'wss'
 
 
 def _load_and_update_extractor(function):
@@ -64,13 +68,16 @@ def _get_tld_extract(url, **kwargs):
             "`extractor` keyword argument.")
 
     scheme = kwargs.get('scheme', True)
-    drop_non_http = kwargs.get('drop_non_http', True)
+    return_unparsed = kwargs.get('return_unparsed', False)
     use_netloc = kwargs.get('use_netloc', True)
+    scheme_default = kwargs.get('scheme_default', HTTP)
     stripped = get_stripped_url(
             url,
+            return_unparsed=return_unparsed,
+            scheme_default=scheme_default,
             scheme=scheme,
-            drop_non_http=drop_non_http,
             use_netloc=use_netloc,
+            extractor=extractor,
     )
     return extractor(stripped)
 
@@ -166,7 +173,14 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 
 @_load_and_update_extractor
-def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, extractor=None):
+def get_stripped_url(
+        url,
+        return_unparsed=True,
+        scheme_default=HTTP,
+        parse_ws=True,
+        scheme=False,
+        use_netloc=True,
+        extractor=None):
     """
     Returns a url stripped to just the beginning and end.
 
@@ -178,29 +192,36 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, ex
     `urllib.parse.urlparse
     <https://docs.python.org/3.8/library/urllib.parse.html>`_.
 
-    Empty scheme e.g. ``my.domain.cloudfront.net``
-    are assumed to be http schemes.
+    A url is parsed if it has a qualifying scheme. The qualifying schemes are
+    ``http``, ``https``, ``ws`` and ``wss``. Websocket schemes can be omitted using
+    the ``parse_ws`` parameter. Additionally, the ``scheme_default`` parameter
+    provides a scheme where the url doesn't contain one. The default is ``http``
+    and so urls without a scheme will, by default, be considered as http and therfore
+    parsed.
 
-    If a URL has a port but no scheme, urlparse determines the scheme to
-    be the hostname and we do not handle this special case. In this case,
-    the url will be treated as a non-http scheme and the return value will
-    be determined by the ``drop_non_http`` setting.
+    What is returned for unparsed urls is determined by the ``return_unparsed``
+    parameter.
 
     Parameters
     ----------
     url : string
         The URL to be parsed
+    return_unparsed : boolean, optional
+        Action to take if scheme is not parsed e.g. ``file:`` or ``about:blank``.
+        If ``False``, the result for non parsed urls will be an empty string
+        If ``True``, the result will be the original url, e.g.
+        ``about:blank`` -> ``about:blank`` even if ``scheme=False``.
+        See method description to understand whether a URL is parsed or not.
+        Default is ``True``.
+    scheme_default : string, optional
+        This parameter is passed to scheme parameter of `urllib.parse.urlparse`. This
+        causes urls without a scheme to return the scheme default.
+        Default is ``http``.
+    parse_ws : boolean, optional
+        If ``True``, then ``ws`` and ``wss`` urls are parsed.
+        Default is ``True``.
     scheme : boolean, optional
-        If ``True``, scheme will be prepended in returned result.
-        Default is ``False``.
-    drop_non_http : boolean, optional
-        Action to take if scheme is not
-        ``http`` or ``https`` e.g. ``file:`` or ``about:blank``.
-        If ``True``, the result for non http urls will be an empty string
-        If ``False``, the result for non http urls will be the original url,
-        not further processed e.g. ``about:blank`` -> ``about:blank`` even
-        if ``scheme=False``. The result for http urls will be the stripped
-        url with or without the scheme as per scheme param.
+        If ``True``, scheme will be prepended in parsed result.
         Default is ``False``.
     use_netloc : boolean, optional
         If ``True`` urlparse's netloc will be used.
@@ -217,18 +238,19 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, ex
         Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
         Returns empty string if appropriate.
     """
-
     url = _adapt_url_for_port_and_scheme(url, extractor)
 
-    purl = urlparse(url)
+    purl = urlparse(url, scheme=scheme_default)
     _scheme = purl.scheme
 
-    # Handle non http schemes
-    if _scheme not in ['http', 'https', '']:
-        if drop_non_http is True:
-            return ''
-        else:
+    # Will we parse
+    schemes_to_parse = [HTTP, HTTPS]
+    if parse_ws is True:
+        schemes_to_parse += [WS, WSS]
+    if _scheme not in schemes_to_parse:
+        if return_unparsed is True:
             return url
+        return ''
 
     scheme_out = ''
     loc_out = ''

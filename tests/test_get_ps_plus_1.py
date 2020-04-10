@@ -1,6 +1,5 @@
 import pytest
 from domain_utils import get_ps_plus_1
-from tldextract import TLDExtract
 
 
 def test_get_ps_plus_one_cloudfront():
@@ -63,14 +62,7 @@ def test_extractor_not_tld_extract_instance_raises_an_issue():
         get_ps_plus_1('', extractor='astring')
 
 
-def test_extractor_with_custom_tld_extract_instance_successful(tmp_path):
-    local_list_location = tmp_path / "list.txt"
-    local_list_location.write_text('moz.illa')
-    custom_extractor = TLDExtract(
-        suffix_list_urls=[local_list_location.as_uri()],
-        cache_file=local_list_location.as_posix(),
-        fallback_to_snapshot=True
-    )
+def test_extractor_with_custom_tld_extract_instance_successful(custom_extractor):
     url = 'http://foo.bar.moz.illa/path/to/webapp.htm?aced=1'
     result = get_ps_plus_1(url, extractor=custom_extractor)
     assert result == 'bar.moz.illa'

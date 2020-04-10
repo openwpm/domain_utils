@@ -17,10 +17,6 @@ def test_port_in_domain():
     assert get_port('example.com:5000') == 5000
 
 
-def test_port_in_domain_and_path():
-    assert get_port('example.com:5000/hello-world') == 5000
-
-
 def test_port_in_ip_no_path():
     assert get_port('10.0.0.1:80') == 80
 

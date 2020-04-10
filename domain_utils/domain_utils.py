@@ -32,8 +32,7 @@ def is_ip_address(hostname):
         return False
 
 
-@_load_and_update_extractor
-def _adapt_url_for_port_and_scheme(url, extractor=None):
+def _adapt_url_for_port_and_scheme(url, extractor):
     # To handle the case where we have no scheme, but we have a port
     # we have the following heuristic. Does scheme have a . in it
     # which is stdlib behavior when not recognizing a netloc due to
@@ -219,7 +218,7 @@ def get_stripped_url(url, scheme=False, drop_non_http=False, use_netloc=True, ex
         Returns empty string if appropriate.
     """
 
-    url = _adapt_url_for_port_and_scheme(url)
+    url = _adapt_url_for_port_and_scheme(url, extractor)
 
     purl = urlparse(url)
     _scheme = purl.scheme
@@ -277,7 +276,8 @@ def get_scheme(url, no_scheme=NO_SCHEME):
         return no_scheme
 
 
-def get_port(url):
+@_load_and_update_extractor
+def get_port(url, extractor=None):
     """
     Given an url, extract from it port if present
 
@@ -292,5 +292,5 @@ def get_port(url):
         Returns port in the url
     """
 
-    url = _adapt_url_for_port_and_scheme(url)
+    url = _adapt_url_for_port_and_scheme(url, extractor)
     return urlparse(url).port

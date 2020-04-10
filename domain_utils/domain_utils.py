@@ -36,6 +36,29 @@ def is_ip_address(hostname):
         return False
 
 
+def _adapt_url_for_port_and_scheme(url, extractor):
+    # To handle the case where we have no scheme, but we have a port
+    # we have the following heuristic. Does scheme have a . in it
+    # which is stdlib behavior when not recognizing a netloc due to
+    # lack of //. If TLDExtract, can find a suffix in the _scheme
+    # then it's probably a domain without an http.
+
+    purl = urlparse(url)
+    _scheme = purl.scheme
+
+    if '.' in str(_scheme):
+        # From the docs: "urlparse recognizes a netloc only
+        # if it is properly introduced by ‘//’". So we
+        # prepend to get results we expect.
+        if extractor(_scheme).suffix != '' or is_ip_address(_scheme):
+            url = '//{url}'.format(url=url)
+    elif url == purl.path:
+        # this is the case where the url has no scheme
+        # and we are trying to access the root. Ex: localhost:5000
+        url = '//{url}/'.format(url=url)
+    return url
+
+
 @_load_and_update_extractor
 def _get_tld_extract(url, **kwargs):
     extractor = kwargs.get('extractor')
@@ -215,23 +238,7 @@ def get_stripped_url(
         Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
         Returns empty string if appropriate.
     """
-    purl = urlparse(url, scheme=scheme_default)
-    _scheme = purl.scheme
-
-    # To handle the case where we have no scheme, but we have a port
-    # we have the following heuristic. Note that scheme_default
-    # does not help here, because the : in the url for the port
-    # causes urlparse to label the preceding domain as the scheme.
-    # Does scheme have a . in it
-    # which is stdlib behavior when not recognizing a netloc due to
-    # lack of //. If TLDExtract, can find a suffix in the _scheme
-    # then it's probably a domain without an http.
-    if '.' in str(_scheme):
-        # From the docs: "urlparse recognizes a netloc only
-        # if it is properly introduced by ‘//’". So we
-        # prepend to get results we expect.
-        if extractor(_scheme).suffix != '' or is_ip_address(_scheme):
-            url = '//{url}'.format(url=url)
+    url = _adapt_url_for_port_and_scheme(url, extractor)
 
     purl = urlparse(url, scheme=scheme_default)
     _scheme = purl.scheme
@@ -246,7 +253,6 @@ def get_stripped_url(
         else:
             return ''
 
-    purl = urlparse(url)
     scheme_out = ''
     loc_out = ''
     path_out = purl.path
@@ -291,3 +297,23 @@ def get_scheme(url, no_scheme=NO_SCHEME):
         return scheme
     else:
         return no_scheme
+
+
+@_load_and_update_extractor
+def get_port(url, extractor=None):
+    """
+    Given an url, extract from it port if present
+
+    Parameters
+    ----------
+    url: string
+        The URL from where we want to get the scheme
+
+    Returns
+    ----------
+    int
+        Returns port in the url
+    """
+
+    url = _adapt_url_for_port_and_scheme(url, extractor)
+    return urlparse(url).port

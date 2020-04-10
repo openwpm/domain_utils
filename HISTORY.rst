@@ -3,6 +3,22 @@ History
 =======
 
 
+0.7.0 (2020-04-10)
+------------------
+
+Thanks to new contributor @yabirgb for two PRs (#20 and #25) in this release.
+
+API changes: #26 renamed `get_stripped_url` to `stem_url`, and `get_ps_plus_1`
+to `get_etld1`. Old method names will continue to work though. #22 updated
+keyword arguments to `get_stripped_url` - default behavior is basically the same.
+
+* API changes (#26 and #22)
+* Support parsing ws/wss urls (#22)
+* Add get_port method (#25)
+* Add get_scheme method (#20)
+* Correct license declaration in setup.py (#24)
+
+
 0.6.0 (2020-04-06)
 ------------------
 

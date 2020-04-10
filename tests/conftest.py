@@ -11,3 +11,8 @@ def custom_extractor(tmp_path):
         cache_file=local_list_location.as_posix(),
         fallback_to_snapshot=True
     )
+
+
+@pytest.fixture
+def extractor():
+    return TLDExtract()

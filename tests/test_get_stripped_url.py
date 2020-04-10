@@ -130,27 +130,6 @@ def test_with_no_scheme_and_not_parsed_non_default_scheme():
     assert result == 'domain.com/path?a=1'
 
 
-def test_typical_url_with_custom_extractor(custom_extractor):
-    # In normal circumstances we wouldn't expect custom extractor
-    # to make a difference
-    url = 'http://foo.bar.moz.illa/path/to/webapp.htm?aced=1'
-    result = get_stripped_url(url, extractor=custom_extractor)
-    assert result == 'foo.bar.moz.illa/path/to/webapp.htm'
-
-
-def test_scenario_with_custom_extractor(custom_extractor):
-    # Custom extractor only comes into play when we have no scheme
-    # and a port and in that case the extractor is used to look at the
-    # suffix to see if we think we have a regular URL. We contrive
-    # the following examples to test the behavior. Note that
-    # the custom extractor has only one publix suffix in it
-    # `moz.illa`
-    url = 'domain.com:8080/path/to/test.html?a=1&b=2'
-    result = get_stripped_url(url, extractor=custom_extractor)
-    # The url has not been parsed because of our custom public suffix list
-    assert result == 'domain.com:8080/path/to/test.html?a=1&b=2'
-
-
 def test_ws_urls_parsed_by_default():
     url = 'ws://domain.com:8080/path/to/test.html?a=1&b=2'
     result = get_stripped_url(url)

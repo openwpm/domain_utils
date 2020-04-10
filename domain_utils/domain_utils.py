@@ -68,6 +68,7 @@ def _get_tld_extract(url, **kwargs):
             "`extractor` keyword argument.")
 
     scheme = kwargs.get('scheme', True)
+    path = kwargs.get('path', True)
     return_unparsed = kwargs.get('return_unparsed', False)
     use_netloc = kwargs.get('use_netloc', True)
     scheme_default = kwargs.get('scheme_default', HTTP)
@@ -76,6 +77,7 @@ def _get_tld_extract(url, **kwargs):
             return_unparsed=return_unparsed,
             scheme_default=scheme_default,
             scheme=scheme,
+            path=path,
             use_netloc=use_netloc,
             extractor=extractor,
     )
@@ -179,6 +181,7 @@ def get_stripped_url(
         scheme_default=HTTP,
         parse_ws=True,
         scheme=False,
+        path=True,
         use_netloc=True,
         extractor=None):
     """
@@ -223,6 +226,9 @@ def get_stripped_url(
     scheme : boolean, optional
         If ``True``, scheme will be prepended in parsed result.
         Default is ``False``.
+    path : boolean, optional
+        If ``True``, path will be included in parsed result.
+        Default is ``True``.
     use_netloc : boolean, optional
         If ``True`` urlparse's netloc will be used.
         If ``False`` urlparse's host will be returned. Using netloc means
@@ -254,11 +260,14 @@ def get_stripped_url(
 
     scheme_out = ''
     loc_out = ''
-    path_out = purl.path
+    path_out = ''
 
     if scheme is True:
-        if _scheme in ['http', 'https']:
+        if _scheme in schemes_to_parse:
             scheme_out = '{scheme}://'.format(scheme=_scheme)
+
+    if path is True:
+        path_out = purl.path
 
     if use_netloc is True:
         loc_out = purl.netloc

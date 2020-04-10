@@ -142,7 +142,25 @@ def test_wss_urls_parsed_by_default():
     assert result == 'domain.com:8080/path/to/test.html'
 
 
+def test_wss_urls_with_scheme_true():
+    url = 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
+    result = get_stripped_url(url, scheme=True)
+    assert result == 'wss://domain.com:8080/path/to/test.html'
+
+
 def test_wss_urls_not_parsed_if_requested():
     url = 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
     result = get_stripped_url(url, parse_ws=False)
     assert result == 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
+
+
+def test_return_path_false():
+    url = 'http://localhost/path/to?a=1&b=2'
+    result = get_stripped_url(url, path=False)
+    assert result == 'localhost'
+
+
+def test_return_path_false_scheme_true():
+    url = 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
+    result = get_stripped_url(url, path=False, scheme=True)
+    assert result == 'wss://domain.com:8080'

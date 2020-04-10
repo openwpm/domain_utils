@@ -72,7 +72,7 @@ def _get_tld_extract(url, **kwargs):
     return_unparsed = kwargs.get('return_unparsed', False)
     use_netloc = kwargs.get('use_netloc', True)
     scheme_default = kwargs.get('scheme_default', HTTP)
-    stripped = get_stripped_url(
+    stemmed = stem_url(
             url,
             return_unparsed=return_unparsed,
             scheme_default=scheme_default,
@@ -81,10 +81,10 @@ def _get_tld_extract(url, **kwargs):
             use_netloc=use_netloc,
             extractor=extractor,
     )
-    return extractor(stripped)
+    return extractor(stemmed)
 
 
-def get_ps_plus_1(url, **kwargs):
+def get_etld1(url, **kwargs):
     """
     Returns the eTLD+1 (aka PS+1) of the url.
 
@@ -96,8 +96,8 @@ def get_ps_plus_1(url, **kwargs):
         An (optional) tldextract::TLDExtract instance can be passed with
         keyword `extractor`, otherwise we create and update one automatically.
     kwargs:
-        The method preprocesses the url with ``get_stripped_url`` before
-        extracting the domain. You can pass in ``get_stripped_url`` parameters
+        The method preprocesses the url with ``stem_url`` before
+        extracting the domain. You can pass in ``stem_url`` parameters
         if you wish to change the behavior in some specific way.
 
     Returns
@@ -112,6 +112,11 @@ def get_ps_plus_1(url, **kwargs):
         return parsed.domain
     else:
         return f'{parsed.domain}.{parsed.suffix}'
+
+
+def get_ps_plus_1(url, **kwargs):
+    """An alias for ``get_etld1``."""
+    return get_etld1(url, **kwargs)
 
 
 @_load_and_update_extractor
@@ -131,7 +136,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
         * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
         * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
     kwargs:
-        Additionally all kwargs for get_ps_plus_1, can be passed to this method.
+        Additionally all kwargs for get_etld1, can be passed to this method.
 
     Returns
     -------
@@ -139,16 +144,16 @@ def hostname_subparts(url, include_ps=False, **kwargs):
         List of slices of of a url's hostname down to the eTLD+1 / PS+1.
     """
     ext = _get_tld_extract(url, **kwargs)
-    ps_plus_1 = get_ps_plus_1(url, **kwargs)
+    etld1 = get_etld1(url, **kwargs)
 
     # If an IP address, just return a single item list with the IP
     if is_ip_address(ext.domain):
         return [ext.domain]
 
-    # We expect all ps_plus_1s to have at least one '.'
+    # We expect all eTLD+1s to have at least one '.'
     # If they don't, the url was likely malformed, so we'll just
     # return an empty list
-    if '.' not in ps_plus_1:
+    if '.' not in etld1:
         return []
 
     # Build a string of the URL except the suffix
@@ -175,7 +180,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 
 @_load_and_update_extractor
-def get_stripped_url(
+def stem_url(
         url,
         return_unparsed=True,
         scheme_default=HTTP,
@@ -281,6 +286,11 @@ def get_stripped_url(
     )
 
 
+def get_stripped_url(url, **kwargs):
+    """Alias for ``stem_url``."""
+    return stem_url(url, **kwargs)
+
+
 def get_scheme(url, no_scheme=NO_SCHEME):
     """
     Given an url, extract from it the scheme.
@@ -294,7 +304,7 @@ def get_scheme(url, no_scheme=NO_SCHEME):
         Default is ``no_scheme``
 
     Returns
-    ----------
+    -------
     string
         Returns the scheme with a default of 'blank' if no schema is provided
     """
@@ -310,17 +320,20 @@ def get_scheme(url, no_scheme=NO_SCHEME):
 @_load_and_update_extractor
 def get_port(url, extractor=None):
     """
-    Given an url, extract from it port if present
+    Given an url, extract from it port if present.
 
     Parameters
     ----------
     url: string
         The URL from where we want to get the scheme
+    extractor : tldextract::TLDExtract, optional
+        An (optional) tldextract::TLDExtract instance can be passed with
+        keyword `extractor`, otherwise we create and update one automatically.
 
     Returns
     ----------
     int
-        Returns port in the url
+        Returns port in the url. If port not found, returns ``None``.
     """
 
     url = _adapt_url_for_port_and_scheme(url, extractor)

@@ -27,9 +27,13 @@ Use::
 
     import domain_utils as du
     # Return just the url `my.domain.cloudfront.net/a/path/to/a/file.html`
-    du.get_stripped_url('https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1')
+    du.stem_url('https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1')
     # Return just the eTLD+1 `domain.cloudfront.net`
-    du.get_stripped_url('https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1')
+    du.get_etld1('https://my.domain.cloudfront.net/a/path/to/a/file.html?a=1')
+    # Get the port `5000`
+    du.get_port('https://localhost:5000/a/path/to/a/file.html?a=1')
+    # Get the scheme `wss`
+    du.get_port('wss://somedomain.example.com/a/path/to/a/ws')
 
 
 This package was originally extracted from

@@ -54,13 +54,6 @@ For more details, please read the `Mozilla Community Participation Guidelines`_.
 For more information on how to report violations of the Community Participation Guidelines, please read our `How to Report`_ page.
 
 
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 .. _openwpm-utils: https://github.com/mozilla/openwpm-utils/blob/14edefa360c482ffcffdfeddbf09e2372d459f4c/openwpm_utils/domain.py
 .. _`Mozilla Community Participation Guidelines`: https://www.mozilla.org/about/governance/policies/participation/
 .. _`How to Report`: https://www.mozilla.org/about/governance/policies/participation/reporting/

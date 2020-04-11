@@ -37,6 +37,6 @@ setup(
     name='domain_utils',
     packages=find_packages(include=['domain_utils', 'domain_utils.*']),
     url='https://github.com/mozilla/domain_utils',
-    version='0.7.0',
+    version='0.7.1',
     zip_safe=False,
 )

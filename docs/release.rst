@@ -4,12 +4,14 @@ PyPI Release Process
 
 #. Update HISTORY.rst
 
-#. Commit the changes:
-
     .. code-block:: bash
 
         git add HISTORY.rst
         git commit -m "Changelog for upcoming release 0.1.1."
+        git push
+
+#. Check readthedocs (https://readthedocs.org/projects/domain-utils/) to
+   ensure that master is building before updating the version.
 
 #. Update version number (can also be patch or major)
 

@@ -131,12 +131,13 @@ def hostname_subparts(url, include_ps=False, **kwargs):
         The url from which to extract the hostname parts
     include_ps : boolean, optional
         If ``include_ps`` is set, the hostname slices will include the public suffix
-        For example: ``http://a.b.c.d.com/path?query#frag`` would yield:
+        For example, ``http://a.b.c.d.com/path?query#frag`` would yield:
 
         * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com"]`` if ``include_ps == False``
         * ``["a.b.c.d.com", "b.c.d.com", "c.d.com", "d.com", "com"]`` if ``include_ps == True``
     kwargs:
-        Additionally all kwargs for get_etld1, can be passed to this method.
+        Additionally, all kwargs for ``get_etld1`` can be passed to this
+        method.
 
     Returns
     -------
@@ -204,7 +205,7 @@ def stem_url(
     ``http``, ``https``, ``ws`` and ``wss``. Websocket schemes can be omitted using
     the ``parse_ws`` parameter. Additionally, the ``scheme_default`` parameter
     provides a scheme where the url doesn't contain one. The default is ``http``
-    and so urls without a scheme will, by default, be considered as http and therfore
+    and so urls without a scheme will, by default, be considered as http and therefore
     parsed.
 
     What is returned for unparsed urls is determined by the ``return_unparsed``
@@ -293,7 +294,7 @@ def get_stripped_url(url, **kwargs):
 
 def get_scheme(url, no_scheme=NO_SCHEME):
     """
-    Given an url, extract from it the scheme.
+    Given a url, extract from it the scheme.
 
     Parameters
     ----------
@@ -306,7 +307,8 @@ def get_scheme(url, no_scheme=NO_SCHEME):
     Returns
     -------
     string
-        Returns the scheme with a default of 'blank' if no schema is provided
+        Returns the scheme with a default of ``no_scheme`` if no scheme
+        is provided
     """
 
     scheme = urlparse(url).scheme
@@ -320,12 +322,12 @@ def get_scheme(url, no_scheme=NO_SCHEME):
 @_load_and_update_extractor
 def get_port(url, extractor=None):
     """
-    Given an url, extract from it port if present.
+    Given a url, extract from it the port if present.
 
     Parameters
     ----------
     url: string
-        The URL from where we want to get the scheme
+        The URL from where we want to get the port
     extractor : tldextract::TLDExtract, optional
         An (optional) tldextract::TLDExtract instance can be passed with
         keyword `extractor`, otherwise we create and update one automatically.

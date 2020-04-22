@@ -33,7 +33,7 @@ Use::
     # Get the port `5000`
     du.get_port('https://localhost:5000/a/path/to/a/file.html?a=1')
     # Get the scheme `wss`
-    du.get_port('wss://somedomain.example.com/a/path/to/a/ws')
+    du.get_scheme('wss://somedomain.example.com/a/path/to/a/ws')
 
 
 This package was originally extracted from

@@ -77,14 +77,14 @@ Ready to contribute? Here's how to set up `domain_utils` for local development.
    Now you can make your changes locally.
 
 5. When you're done making changes, check that your changes pass flake8 and the
-   tests. 
+   tests::
 
     $ flake8 domain_utils tests
     $ python setup.py test or py.test
 
-   To get flake8, just pip install them into your env
+   To get flake8, just pip install it into your env.
 
-   To test other versions of python use conda or travis
+   To test other versions of python use conda or travis.
 
 6. Commit your changes and push your branch to GitHub::
 

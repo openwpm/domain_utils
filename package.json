@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "get_etld1": "node -e 'require(\"./domain_utils/domain_utils\").get_etld1()'",
+        "stem_url": "node -e 'require(\"./domain_utils/domain_utils\").stem_url()'"
+    }
+}

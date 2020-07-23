@@ -1,3 +1,5 @@
+import pytest
+pytest.skip('Not supported in JS', allow_module_level=True)
 from domain_utils import hostname_subparts
 
 

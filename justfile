@@ -1,5 +1,6 @@
 uv := env('UV', 'uv')
-# Overridable so a ruff already on PATH can be used instead.
+# Overridden by the nix dev shell, where ruff comes from nixpkgs because the
+# published wheel is a prebuilt binary that will not run on NixOS.
 ruff := env('RUFF', uv + ' run --group lint ruff')
 
 # show this help

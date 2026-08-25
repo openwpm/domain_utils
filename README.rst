@@ -6,22 +6,22 @@
 .. image:: https://img.shields.io/pypi/v/domain_utils.svg
         :target: https://pypi.python.org/pypi/domain_utils
 
-.. image:: https://img.shields.io/circleci/build/github/mozilla/domain_utils/master
-        :target: https://app.circleci.com/pipelines/github/mozilla/domain_utils
-        :alt: CircleCI
+.. image:: https://github.com/openwpm/domain_utils/actions/workflows/ci.yml/badge.svg
+        :target: https://github.com/openwpm/domain_utils/actions/workflows/ci.yml
+        :alt: CI
 
-.. image:: https://readthedocs.org/projects/domain-utils/badge/?version=v0.7.1
-        :target: https://domain-utils.readthedocs.io/en/v0.7.1/
+.. image:: https://readthedocs.org/projects/domain-utils/badge/?version=latest
+        :target: https://domain-utils.readthedocs.io/en/latest/
         :alt: Documentation Status
 
 
 A collection of util functions for extracting domains from urls.
 
-Repo: https://github.com/mozilla/domain_utils
+Repo: https://github.com/openwpm/domain_utils
 
 Install::
 
-    pip install domain_utils
+    pip install domain-utils
 
 Use::
 

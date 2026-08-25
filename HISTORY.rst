@@ -13,6 +13,8 @@ History
 * Drop support for Python 3.6 to 3.10; the minimum is now 3.11.
 * Replace CircleCI with GitHub Actions (#31).
 * The test suite now fails below 100% statement and branch coverage (#27).
+* Fix the docs build, and point urls at openwpm/domain_utils. Install
+  instructions use the ``domain-utils`` project name (#30).
 * Fix url parsing on modern CPython. ``urlparse`` no longer refuses to read
   ``host:port`` as a scheme, which meant ``localhost:8000`` and
   ``example.com:8080`` lost their port, and ``127.0.0.1:8080/a?b=1`` lost its

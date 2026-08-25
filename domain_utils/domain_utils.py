@@ -37,25 +37,33 @@ def is_ip_address(hostname):
 
 
 def _adapt_url_for_port_and_scheme(url, extractor):
-    # To handle the case where we have no scheme, but we have a port
-    # we have the following heuristic. Does scheme have a . in it
-    # which is stdlib behavior when not recognizing a netloc due to
-    # lack of //. If TLDExtract, can find a suffix in the _scheme
-    # then it's probably a domain without an http.
-
+    # From the docs: "urlparse recognizes a netloc only if it is properly
+    # introduced by '//'". A url that carries a host but no scheme is
+    # therefore parsed either as a scheme plus a path (`example.com:8080/a`,
+    # `localhost:5000`) or as a bare path (`127.0.0.1:8080/a`, because a
+    # scheme may not start with a digit). Both shapes lose the host and the
+    # port, so we prepend the missing `//` and let urlparse try again.
     purl = urlparse(url)
     _scheme = purl.scheme
 
-    if '.' in str(_scheme):
-        # From the docs: "urlparse recognizes a netloc only
-        # if it is properly introduced by ‘//’". So we
-        # prepend to get results we expect.
-        if extractor(_scheme).suffix != '' or is_ip_address(_scheme):
-            url = '//{url}'.format(url=url)
-    elif url == purl.path:
-        # this is the case where the url has no scheme
-        # and we are trying to access the root. Ex: localhost:5000
-        url = '//{url}/'.format(url=url)
+    if purl.netloc != '':
+        return url
+
+    if _scheme != '':
+        # The scheme is only really a host if it looks like one: either
+        # everything after the colon is a port (`localhost:5000`), or
+        # TLDExtract finds a public suffix in it (`example.com:8080/a`).
+        # Note that the extractor is what makes this configurable, so it
+        # deliberately gets the final say for anything dotted.
+        if not purl.path.isdigit():
+            if '.' not in _scheme or extractor(_scheme).suffix == '':
+                return url
+
+    url = '//{url}'.format(url=url)
+    if urlparse(url).path == '':
+        # The url is a bare host, e.g. `localhost:5000`; keep the trailing
+        # slash that callers of ``stem_url`` have always been given.
+        url = '{url}/'.format(url=url)
     return url
 
 
@@ -250,9 +258,12 @@ def stem_url(
         Returns a url stripped to (scheme)?+(netloc|hostname)+(path)?.
         Returns empty string if appropriate.
     """
-    url = _adapt_url_for_port_and_scheme(url, extractor)
+    if scheme_default is None:
+        # `urlparse` raises on a None scheme before Python 3.14. An empty
+        # scheme means the same thing here: do not assume one.
+        scheme_default = ''
 
-    purl = urlparse(url, scheme=scheme_default)
+    purl = urlparse(_adapt_url_for_port_and_scheme(url, extractor), scheme=scheme_default)
     _scheme = purl.scheme
 
     # Will we parse
@@ -261,6 +272,7 @@ def stem_url(
         schemes_to_parse += [WS, WSS]
     if _scheme not in schemes_to_parse:
         if return_unparsed is True:
+            # The url as the caller gave it to us, not as we adapted it.
             return url
         return ''
 

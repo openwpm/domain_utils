@@ -2,6 +2,23 @@
 History
 =======
 
+0.8.0 (unreleased)
+------------------
+
+* Fix url parsing on modern CPython. ``urlparse`` no longer refuses to read
+  ``host:port`` as a scheme, which meant ``localhost:8000`` and
+  ``example.com:8080`` lost their port, and ``127.0.0.1:8080/a?b=1`` lost its
+  host entirely.
+* Fix ``scheme_default=None``, which raised ``AttributeError`` on Python 3.11
+  to 3.13 because ``urlparse`` gained WHATWG scheme stripping.
+* ``stem_url`` now returns the url exactly as it was passed in when
+  ``return_unparsed`` is set and the scheme is not parsed, rather than an
+  internally rewritten form.
+* ``stem_url`` no longer appends a stray trailing slash to a scheme-less url
+  that already has a path, e.g. ``10.0.0.1:80/a/b.html``. A scheme-less bare
+  host, e.g. ``example.com``, still gets one.
+
+
 0.7.1 (2020-04-10)
 ------------------
 

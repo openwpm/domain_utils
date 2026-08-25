@@ -30,3 +30,29 @@ def test_scenario_with_custom_extractor(custom_extractor):
     result = _adapt_url_for_port_and_scheme(url, extractor=custom_extractor)
     # The url has not been parsed because of our custom public suffix list
     assert result == 'domain.com:8080/path/to/test.html?a=1&b=2'
+
+
+def test_url_no_scheme_port_and_ip(extractor):
+    # An ip address can never be parsed as a scheme, so this url reaches
+    # urlparse as a bare path.
+    url = '127.0.0.1:8080/path/to/webapp.htm?aced=1'
+    result = _adapt_url_for_port_and_scheme(url, extractor=extractor)
+    assert result == '//127.0.0.1:8080/path/to/webapp.htm?aced=1'
+
+
+def test_url_single_label_host_with_port(extractor):
+    url = 'localhost:8000'
+    result = _adapt_url_for_port_and_scheme(url, extractor=extractor)
+    assert result == '//localhost:8000/'
+
+
+def test_url_with_netloc_is_left_alone(extractor):
+    url = 'https://domain.com:8080/path?a=1'
+    assert _adapt_url_for_port_and_scheme(url, extractor=extractor) == url
+
+
+def test_non_http_scheme_is_left_alone(extractor):
+    # `data` and `ws` are both public suffixes, so they must not be mistaken
+    # for hosts.
+    for url in ['about:blank', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP', 'file:///tmp/a']:
+        assert _adapt_url_for_port_and_scheme(url, extractor=extractor) == url

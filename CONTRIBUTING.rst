@@ -112,7 +112,11 @@ Tips
 
 To run a subset of tests::
 
-$ pytest tests.test_domain_utils
+$ just test tests/test_get_port.py
+
+``just test`` does not measure coverage, so a subset run is not failed by a
+whole-suite gate. ``just coverage`` runs everything under the gate, which is
+what CI enforces.
 
 
 Deploying

@@ -27,12 +27,14 @@ format:
     {{ ruff }} check --fix .
     {{ ruff }} format .
 
-# run the test suite (fails under 100% coverage)
+# run the test suite, or a subset: `just test tests/test_get_port.py`
 test *args:
     {{ uv }} run --group test pytest {{ args }}
 
-# alias for `just test`, which always measures coverage
-coverage: test
+# run the whole suite under the coverage gate, as CI does
+# (the gate itself is configured in pyproject.toml, under [tool.coverage])
+coverage:
+    {{ uv }} run --group test pytest --cov
 
 # build the html docs
 docs:

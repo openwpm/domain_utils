@@ -46,6 +46,42 @@ dist: clean
     {{ uv }} build
     @ls -l dist
 
+# check the tag and build the distributions for it
+release-build tag: (check-version tag) dist
+
+# install the built wheel and run the tests against it, not against the source tree
+test-wheel version dist_dir='dist':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Run from outside the checkout so the tests import the installed wheel
+    # rather than the source tree sitting next to them.
+    workdir="$(mktemp -d)"
+    trap 'rm -rf "$workdir"' EXIT
+    {{ uv }} venv --python {{ version }} "$workdir/.venv"
+    {{ uv }} pip install --python "$workdir/.venv/bin/python" {{ dist_dir }}/*.whl pytest
+    cp -r tests "$workdir/tests"
+    cd "$workdir"
+    ./.venv/bin/python -m pytest tests -p no:cacheprovider
+
+# check the tag matches the packaged version and the dated changelog section
+check-version tag:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tag="{{ trim_start_match(tag, 'v') }}"
+    version="$(sed -n "s/^__version__ = ['\"]\(.*\)['\"]$/\1/p" domain_utils/__init__.py)"
+    if [ "$tag" != "$version" ]; then
+        echo "::error::tag {{ tag }} does not match __version__ '$version'"
+        exit 1
+    fi
+    # The changelog is part of the published description, so an undated
+    # "(unreleased)" heading would ship to PyPI as the first thing on the page.
+    if ! grep -qE "^${tag} \([0-9]{4}-[0-9]{2}-[0-9]{2}\)$" HISTORY.rst; then
+        echo "::error::HISTORY.rst needs a dated section for ${tag}, e.g. '${tag} ($(date +%F))'"
+        grep -n "^${tag} " HISTORY.rst >&2 || echo "  (no section for ${tag} at all)" >&2
+        exit 1
+    fi
+    echo "Releasing $version"
+
 # how to publish
 release:
     @echo "Releases are published by GitHub Actions on a v* tag."

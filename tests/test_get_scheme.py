@@ -1,43 +1,43 @@
-from domain_utils import get_scheme, NO_SCHEME
+from domain_utils import NO_SCHEME, get_scheme
 
 
 def test_no_scheme():
-    result = get_scheme("domain.net")
+    result = get_scheme('domain.net')
     assert result == NO_SCHEME
 
 
 def test_file():
-    result = get_scheme("file:///home/user/index.html")
+    result = get_scheme('file:///home/user/index.html')
     assert result == 'file'
 
 
 def test_https():
-    result = get_scheme("https://domain.net")
+    result = get_scheme('https://domain.net')
     assert result == 'https'
 
 
 def test_http():
-    result = get_scheme("http://domain.net")
+    result = get_scheme('http://domain.net')
     assert result == 'http'
 
 
 def test_about():
-    result = get_scheme("about:config")
+    result = get_scheme('about:config')
     assert result == 'about'
 
 
 def test_webpack():
-    result = get_scheme("webpack://index.js")
+    result = get_scheme('webpack://index.js')
     assert result == 'webpack'
 
 
 def test_empty():
-    result = get_scheme("")
+    result = get_scheme('')
     assert result == NO_SCHEME
 
 
 def test_ws():
-    result = get_scheme("ws://socket")
+    result = get_scheme('ws://socket')
     assert result == 'ws'
 
 

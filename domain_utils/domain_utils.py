@@ -1,7 +1,8 @@
 from functools import wraps
 from ipaddress import ip_address
-from tldextract import TLDExtract
 from urllib.parse import urlparse
+
+from tldextract import TLDExtract
 
 NO_SCHEME = 'no_scheme'
 HTTP = 'http'
@@ -21,6 +22,7 @@ def _load_and_update_extractor(function):
             return function(*args, extractor=wrapper.extractor, **kwargs)
         else:
             return function(*args, **kwargs)
+
     wrapper.extractor = None
     return wrapper
 
@@ -59,11 +61,11 @@ def _adapt_url_for_port_and_scheme(url, extractor):
             if '.' not in _scheme or extractor(_scheme).suffix == '':
                 return url
 
-    url = '//{url}'.format(url=url)
+    url = f'//{url}'
     if urlparse(url).path == '':
         # The url is a bare host, e.g. `localhost:5000`; keep the trailing
         # slash that callers of ``stem_url`` have always been given.
-        url = '{url}/'.format(url=url)
+        url = f'{url}/'
     return url
 
 
@@ -72,8 +74,9 @@ def _get_tld_extract(url, **kwargs):
     extractor = kwargs.get('extractor')
     if not isinstance(extractor, TLDExtract):
         raise ValueError(
-            "A tldextract::TLDExtract instance must be passed using the "
-            "`extractor` keyword argument.")
+            'A tldextract::TLDExtract instance must be passed using the '
+            '`extractor` keyword argument.'
+        )
 
     scheme = kwargs.get('scheme', True)
     path = kwargs.get('path', True)
@@ -81,13 +84,13 @@ def _get_tld_extract(url, **kwargs):
     use_netloc = kwargs.get('use_netloc', True)
     scheme_default = kwargs.get('scheme_default', HTTP)
     stemmed = stem_url(
-            url,
-            return_unparsed=return_unparsed,
-            scheme_default=scheme_default,
-            scheme=scheme,
-            path=path,
-            use_netloc=use_netloc,
-            extractor=extractor,
+        url,
+        return_unparsed=return_unparsed,
+        scheme_default=scheme_default,
+        scheme=scheme,
+        path=path,
+        use_netloc=use_netloc,
+        extractor=extractor,
     )
     return extractor(stemmed)
 
@@ -166,11 +169,9 @@ def hostname_subparts(url, include_ps=False, **kwargs):
         return []
 
     # Build a string of the URL except the suffix
-    domain_less_ps = '.'.join([
-        url_part for url_part
-        in [ext.subdomain, ext.domain]
-        if url_part != ''
-    ])
+    domain_less_ps = '.'.join(
+        [url_part for url_part in [ext.subdomain, ext.domain] if url_part != '']
+    )
 
     # Assemble subparts list
     subparts = []
@@ -178,7 +179,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     if domain_less_ps != '':
         domain_parts_to_pop = list(reversed(domain_less_ps.split('.')))
         while len(domain_parts_to_pop) > 0:
-            domain_parts = list(reversed(domain_parts_to_pop)) + [ext.suffix]
+            domain_parts = [*reversed(domain_parts_to_pop), ext.suffix]
             subparts.append('.'.join(domain_parts))
             domain_parts_to_pop.pop()
 
@@ -190,14 +191,15 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 @_load_and_update_extractor
 def stem_url(
-        url,
-        return_unparsed=True,
-        scheme_default=HTTP,
-        parse_ws=True,
-        scheme=False,
-        path=True,
-        use_netloc=True,
-        extractor=None):
+    url,
+    return_unparsed=True,
+    scheme_default=HTTP,
+    parse_ws=True,
+    scheme=False,
+    path=True,
+    use_netloc=True,
+    extractor=None,
+):
     """
     Returns a url stripped to just the beginning and end.
 
@@ -282,7 +284,7 @@ def stem_url(
 
     if scheme is True:
         if _scheme in schemes_to_parse:
-            scheme_out = '{scheme}://'.format(scheme=_scheme)
+            scheme_out = f'{_scheme}://'
 
     if path is True:
         path_out = purl.path
@@ -292,11 +294,7 @@ def stem_url(
     else:
         loc_out = purl.hostname
 
-    return '{scheme_out}{loc_out}{path_out}'.format(
-        scheme_out=scheme_out,
-        loc_out=loc_out,
-        path_out=path_out,
-    )
+    return f'{scheme_out}{loc_out}{path_out}'
 
 
 def get_stripped_url(url, **kwargs):

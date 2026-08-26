@@ -40,8 +40,14 @@ default-groups = []
 [dependency-groups]
 test = ["pytest>=8", "pytest-cov>=5"]
 lint = ["ruff>=0.14"]
+typecheck = ["pyright>=1.1"]
 docs = ["sphinx>=8", "nbsphinx>=0.9", "ipython>=8"]
-dev = [{ include-group = "test" }, { include-group = "lint" }, { include-group = "docs" }]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "typecheck" },
+    { include-group = "docs" },
+]
 
 # setup.py published README.rst + "\n\n" + HISTORY.rst as the long
 # description, so the changelog is part of the PyPI page. `readme` takes a
@@ -119,3 +125,11 @@ select = [
 
 [tool.ruff.lint.per-file-ignores]
 "domain_utils/__init__.py" = ["F403"]  # re-export the public api
+
+[tool.pyright]
+# uv keeps the dev environment here; pyright needs it to see tldextract and pytest.
+venvPath = "."
+venv = ".venv"
+include = ["domain_utils", "tests"]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"

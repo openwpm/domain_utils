@@ -1,9 +1,11 @@
+from pathlib import Path
+
 import pytest
 from tldextract import TLDExtract
 
 
 @pytest.fixture
-def custom_extractor(tmp_path):
+def custom_extractor(tmp_path: Path) -> TLDExtract:
     local_list_location = tmp_path / 'list.txt'
     local_list_location.write_text('moz.illa')
     return TLDExtract(
@@ -17,5 +19,5 @@ def custom_extractor(tmp_path):
 
 
 @pytest.fixture
-def extractor():
+def extractor() -> TLDExtract:
     return TLDExtract()

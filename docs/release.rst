@@ -39,13 +39,31 @@ Cutting a release
 
 #. Make sure ``master`` is green, both in
    `CI <https://github.com/openwpm/domain_utils/actions/workflows/ci.yml>`_ and
-   on `Read the Docs <https://readthedocs.org/projects/domain-utils/>`_.
+   on `Read the Docs <https://readthedocs.org/projects/domain-utils/>`_. CI is
+   a single ``just ci`` inside the nix shell, so you can run the same thing
+   locally:
 
-#. Add the release notes to ``HISTORY.rst``.
+    .. code-block:: bash
 
-#. Bump ``__version__`` in ``domain_utils/__init__.py``. That is the single
-   source of truth for the version; the packaging metadata reads it and the
-   release workflow refuses to publish if it disagrees with the tag.
+        nix-shell --run 'just ci'
+
+#. Add the release notes to ``HISTORY.rst``, under the existing
+   ``0.8.0 (unreleased)`` heading.
+
+#. Set the version and date the changelog:
+
+    .. code-block:: bash
+
+        just bump 0.8.0
+
+   That rewrites ``__version__`` in ``domain_utils/__init__.py`` and turns
+   ``0.8.0 (unreleased)`` into ``0.8.0 (<today>)``. ``__version__`` is the
+   single source of truth for the version: the packaging metadata reads it,
+   and the release workflow refuses to publish if it disagrees with the tag
+   or if the changelog section is still undated. The changelog is part of
+   the published description, so an undated heading would be the first thing
+   on the PyPI page. The check is ``just check-version v0.8.0``, which
+   ``just bump`` runs for you.
 
 #. Commit and push both changes:
 

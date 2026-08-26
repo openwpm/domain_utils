@@ -1,8 +1,26 @@
+from collections.abc import Callable
 from functools import wraps
 from ipaddress import ip_address
+from typing import ParamSpec, TypedDict, TypeVar, Unpack
 from urllib.parse import urlparse
 
-from tldextract import TLDExtract
+from tldextract import ExtractResult, TLDExtract
+
+__all__ = [
+    'HTTP',
+    'HTTPS',
+    'NO_SCHEME',
+    'WS',
+    'WSS',
+    'get_etld1',
+    'get_port',
+    'get_ps_plus_1',
+    'get_scheme',
+    'get_stripped_url',
+    'hostname_subparts',
+    'is_ip_address',
+    'stem_url',
+]
 
 NO_SCHEME = 'no_scheme'
 HTTP = 'http'
@@ -10,24 +28,57 @@ HTTPS = 'https'
 WS = 'ws'
 WSS = 'wss'
 
+_P = ParamSpec('_P')
+_R = TypeVar('_R')
+_T = TypeVar('_T')
 
-def _load_and_update_extractor(function):
+
+class _StemKwargs(TypedDict, total=False):
+    """The keyword arguments ``stem_url`` takes.
+
+    Spelled out so that the functions forwarding ``**kwargs`` to it stay
+    checkable at their call sites.
+    """
+
+    return_unparsed: bool
+    scheme_default: str | None
+    parse_ws: bool
+    scheme: bool
+    path: bool
+    use_netloc: bool
+    extractor: TLDExtract
+
+
+def _require_extractor(extractor: object) -> TLDExtract:
+    if not isinstance(extractor, TLDExtract):
+        raise ValueError(
+            'A tldextract::TLDExtract instance must be passed using the '
+            '`extractor` keyword argument.'
+        )
+    return extractor
+
+
+def _load_and_update_extractor(function: Callable[_P, _R]) -> Callable[_P, _R]:
+    # Note that omitting `extractor` is not the same as passing None: omitting
+    # it asks for the shared extractor built here, while passing None is a
+    # choice of extractor, and a bad one, which the callee rejects.
+    extractor: TLDExtract | None = None
+
     @wraps(function)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+        nonlocal extractor
         if 'extractor' not in kwargs:
-            if wrapper.extractor is None:
+            if extractor is None:
                 _extractor = TLDExtract(include_psl_private_domains=True)
                 _extractor.update()
-                wrapper.extractor = _extractor
-            return function(*args, extractor=wrapper.extractor, **kwargs)
-        else:
-            return function(*args, **kwargs)
+                extractor = _extractor
+            kwargs['extractor'] = extractor
+        return function(*args, **kwargs)
 
-    wrapper.extractor = None
     return wrapper
 
 
-def is_ip_address(hostname):
+def is_ip_address(hostname: object) -> bool:
     """
     Check if the given string is a valid IP address
     """
@@ -38,7 +89,7 @@ def is_ip_address(hostname):
         return False
 
 
-def _adapt_url_for_port_and_scheme(url, extractor):
+def _adapt_url_for_port_and_scheme(url: str, extractor: TLDExtract | None) -> str:
     # From the docs: "urlparse recognizes a netloc only if it is properly
     # introduced by '//'". A url that carries a host but no scheme is
     # therefore parsed either as a scheme plus a path (`example.com:8080/a`,
@@ -56,9 +107,10 @@ def _adapt_url_for_port_and_scheme(url, extractor):
         # everything after the colon is a port (`localhost:5000`), or
         # TLDExtract finds a public suffix in it (`example.com:8080/a`).
         # Note that the extractor is what makes this configurable, so it
-        # deliberately gets the final say for anything dotted.
+        # deliberately gets the final say for anything dotted. It is only
+        # required once we get this far.
         if not purl.path.isdigit():
-            if '.' not in _scheme or extractor(_scheme).suffix == '':
+            if '.' not in _scheme or _require_extractor(extractor)(_scheme).suffix == '':
                 return url
 
     url = f'//{url}'
@@ -70,13 +122,8 @@ def _adapt_url_for_port_and_scheme(url, extractor):
 
 
 @_load_and_update_extractor
-def _get_tld_extract(url, **kwargs):
-    extractor = kwargs.get('extractor')
-    if not isinstance(extractor, TLDExtract):
-        raise ValueError(
-            'A tldextract::TLDExtract instance must be passed using the '
-            '`extractor` keyword argument.'
-        )
+def _get_tld_extract(url: str, **kwargs: Unpack[_StemKwargs]) -> ExtractResult:
+    extractor = _require_extractor(kwargs.get('extractor'))
 
     scheme = kwargs.get('scheme', True)
     path = kwargs.get('path', True)
@@ -95,7 +142,7 @@ def _get_tld_extract(url, **kwargs):
     return extractor(stemmed)
 
 
-def get_etld1(url, **kwargs):
+def get_etld1(url: str, **kwargs: Unpack[_StemKwargs]) -> str:
     """
     Returns the eTLD+1 (aka PS+1) of the url.
 
@@ -125,13 +172,15 @@ def get_etld1(url, **kwargs):
         return f'{parsed.domain}.{parsed.suffix}'
 
 
-def get_ps_plus_1(url, **kwargs):
+def get_ps_plus_1(url: str, **kwargs: Unpack[_StemKwargs]) -> str:
     """An alias for ``get_etld1``."""
     return get_etld1(url, **kwargs)
 
 
 @_load_and_update_extractor
-def hostname_subparts(url, include_ps=False, **kwargs):
+def hostname_subparts(
+    url: str, include_ps: bool = False, **kwargs: Unpack[_StemKwargs]
+) -> list[str]:
     """
     Returns a list of slices of a url's hostname down to the eTLD+1 / PS+1.
 
@@ -174,7 +223,7 @@ def hostname_subparts(url, include_ps=False, **kwargs):
     )
 
     # Assemble subparts list
-    subparts = []
+    subparts: list[str] = []
 
     if domain_less_ps != '':
         domain_parts_to_pop = list(reversed(domain_less_ps.split('.')))
@@ -191,15 +240,15 @@ def hostname_subparts(url, include_ps=False, **kwargs):
 
 @_load_and_update_extractor
 def stem_url(
-    url,
-    return_unparsed=True,
-    scheme_default=HTTP,
-    parse_ws=True,
-    scheme=False,
-    path=True,
-    use_netloc=True,
-    extractor=None,
-):
+    url: str,
+    return_unparsed: bool = True,
+    scheme_default: str | None = HTTP,
+    parse_ws: bool = True,
+    scheme: bool = False,
+    path: bool = True,
+    use_netloc: bool = True,
+    extractor: TLDExtract | None = None,
+) -> str:
     """
     Returns a url stripped to just the beginning and end.
 
@@ -279,7 +328,7 @@ def stem_url(
         return ''
 
     scheme_out = ''
-    loc_out = ''
+    loc_out: str | None = ''
     path_out = ''
 
     if scheme is True:
@@ -297,12 +346,12 @@ def stem_url(
     return f'{scheme_out}{loc_out}{path_out}'
 
 
-def get_stripped_url(url, **kwargs):
+def get_stripped_url(url: str, **kwargs: Unpack[_StemKwargs]) -> str:
     """Alias for ``stem_url``."""
     return stem_url(url, **kwargs)
 
 
-def get_scheme(url, no_scheme=NO_SCHEME):
+def get_scheme(url: str, no_scheme: _T = NO_SCHEME) -> str | _T:
     """
     Given a url, extract from it the scheme.
 
@@ -330,7 +379,7 @@ def get_scheme(url, no_scheme=NO_SCHEME):
 
 
 @_load_and_update_extractor
-def get_port(url, extractor=None):
+def get_port(url: str, extractor: TLDExtract | None = None) -> int | None:
     """
     Given a url, extract from it the port if present.
 

@@ -11,7 +11,16 @@ History
   running more than one process could race and lose data. Upstream moved the
   cache out of the package directory in 3.1.0.
 * Drop support for Python 3.6 to 3.10; the minimum is now 3.11.
-* Replace CircleCI with GitHub Actions (#31).
+* Ship type annotations. The package now carries a ``py.typed`` marker, so
+  type checkers see the annotations, and the whole codebase is checked with
+  pyright in strict mode. Passing ``extractor=None`` explicitly is now a type
+  error as well as the ``ValueError`` it always raised; leave the argument
+  out to get the automatically created extractor.
+* Replace CircleCI with GitHub Actions (#31). CI now runs a single
+  ``just ci`` inside the nix shell, so a red build reproduces locally with
+  the same command and the same tool versions.
+* Replace the Makefile with a justfile. Every target was a ``.PHONY``
+  command alias, which is a command runner's job rather than make's.
 * The test suite now fails below 100% statement and branch coverage (#27).
 * Fix the docs build, and point urls at openwpm/domain_utils. Install
   instructions use the ``domain-utils`` project name (#30).

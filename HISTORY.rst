@@ -5,6 +5,12 @@ History
 0.8.0 (unreleased)
 ------------------
 
+* Relax the ``tldextract`` pin from ``==2.2.2`` to ``>=5.3`` (#32). The
+  pinned version cached the public suffix list inside its own installed package
+  directory and refreshed it with an unguarded check-then-act, so any consumer
+  running more than one process could race and lose data. Upstream moved the
+  cache out of the package directory in 3.1.0.
+* Drop support for Python 3.6 to 3.10; the minimum is now 3.11.
 * Fix url parsing on modern CPython. ``urlparse`` no longer refuses to read
   ``host:port`` as a scheme, which meant ``localhost:8000`` and
   ``example.com:8080`` lost their port, and ``127.0.0.1:8080/a?b=1`` lost its

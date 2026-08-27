@@ -164,3 +164,12 @@ def test_return_path_false_scheme_true():
     url = 'wss://domain.com:8080/path/to/test.html?a=1&b=2'
     result = stem_url(url, path=False, scheme=True)
     assert result == 'wss://domain.com:8080'
+
+
+def test_bare_host_keeps_trailing_slash():
+    assert stem_url('my.domain.cloudfront.net') == 'my.domain.cloudfront.net/'
+
+
+def test_unparsed_returns_the_original_url_not_an_adapted_one():
+    url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
+    assert stem_url(url, scheme_default='wont_parse') == url

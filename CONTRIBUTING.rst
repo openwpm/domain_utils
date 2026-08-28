@@ -64,11 +64,16 @@ Ready to contribute? Here's how to set up `domain_utils` for local development.
 
     $ git clone git@github.com:your_name_here/domain_utils.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Set up the development environment. The project uses uv_ for dependency
+   management::
 
-    $ mkvirtualenv domain_utils
     $ cd domain_utils/
-    $ python setup.py develop
+    $ just install-dev
+
+   On NixOS there is a flake providing uv, ruff and the supported
+   interpreters; ``nix develop`` (or ``direnv allow``) drops you into it.
+   The flake pins uv to the interpreters from nixpkgs, because uv's own
+   prebuilt CPython downloads assume an FHS layout and will not run.
 
 4. Create a branch for local development::
 
@@ -76,15 +81,18 @@ Ready to contribute? Here's how to set up `domain_utils` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests::
+5. When you're done making changes, check that your changes pass the linter and
+   the tests::
 
-    $ flake8 domain_utils tests
-    $ python setup.py test or py.test
+    $ just lint
+    $ just test
 
-   To get flake8, just pip install it into your env.
+   ``just test`` fails if coverage drops below 100%. ``just format`` applies
+   the fixes the linter can make on its own.
 
-   To test other versions of python use conda or travis.
+   To test against another interpreter, pass it to uv::
+
+    $ uv run --python 3.11 --group test pytest
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -103,16 +111,22 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/mozilla/domain_utils/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+3. The pull request should work for every supported Python version. CI runs the
+   suite against all of them; check
+   https://github.com/openwpm/domain_utils/actions.
 
 Tips
 ----
 
 To run a subset of tests::
 
-$ pytest tests.test_domain_utils
+$ just test tests/test_get_port.py
+
+``just test`` does not measure coverage, so a subset run is not failed by a
+whole-suite gate. ``just coverage`` runs everything under the gate, which is
+what CI enforces.
+
+.. _uv: https://docs.astral.sh/uv/
 
 
 Deploying

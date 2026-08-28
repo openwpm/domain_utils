@@ -6,9 +6,11 @@ def test_get_ps_plus_1_is_an_alias_for_get_etld1():
     assert get_ps_plus_1(url) == get_etld1(url) == 'domain.cloudfront.net'
 
 
-def test_get_ps_plus_1_forwards_kwargs():
-    url = 'http://my.example.com:8080/path/to/webapp.htm?aced=1'
-    assert get_ps_plus_1(url, use_netloc=False) == 'example.com'
+def test_get_ps_plus_1_forwards_kwargs(custom_extractor):
+    # The kwarg has to be one that changes the answer: `use_netloc` does not,
+    # because get_etld1 discards the port either way.
+    url = 'http://a.b.moz.illa/path'
+    assert get_ps_plus_1(url, extractor=custom_extractor) == 'b.moz.illa'
 
 
 def test_get_stripped_url_is_an_alias_for_stem_url():

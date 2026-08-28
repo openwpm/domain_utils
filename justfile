@@ -1,5 +1,6 @@
 uv := env('UV', 'uv')
-# Overridable so a ruff already on PATH can be used instead.
+# Overridden by the nix dev shell, where ruff comes from nixpkgs because the
+# published wheel is a prebuilt binary that will not run on NixOS.
 ruff := env('RUFF', uv + ' run --group lint ruff')
 
 # show this help
@@ -27,12 +28,14 @@ format:
     {{ ruff }} check --fix .
     {{ ruff }} format .
 
-# run the test suite (fails under 100% coverage)
+# run the test suite, or a subset: `just test tests/test_get_port.py`
 test *args:
     {{ uv }} run --group test pytest {{ args }}
 
-# alias for `just test`, which always measures coverage
-coverage: test
+# run the whole suite under the coverage gate, as CI does
+# (the gate itself is configured in pyproject.toml, under [tool.coverage])
+coverage:
+    {{ uv }} run --group test pytest --cov
 
 # build the html docs
 docs:

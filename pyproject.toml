@@ -76,16 +76,24 @@ packages = ["domain_utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Without pytest-cov the gate below is just unrecognised arguments; say so.
+required_plugins = ["pytest-cov"]
+# The coverage settings are below in [tool.coverage]; they apply when a run
+# asks for coverage with --cov, so `pytest tests/test_one.py` is not failed by
+# a whole-suite gate it cannot satisfy.
 addopts = [
-    "--cov=domain_utils",
-    # Statement coverage alone would call a never-taken branch covered, so the
-    # gate measures branches too.
-    "--cov-branch",
-    "--cov-report=term-missing",
-    "--cov-fail-under=100",
     "--strict-markers",
     "--strict-config",
 ]
+
+[tool.coverage.run]
+source = ["domain_utils"]
+# Statement coverage alone would call a never-taken branch covered.
+branch = true
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
 
 [tool.ruff]
 line-length = 99

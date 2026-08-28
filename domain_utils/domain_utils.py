@@ -283,8 +283,8 @@ def stem_url(
     path_out = ''
 
     if scheme is True:
-        if _scheme in schemes_to_parse:
-            scheme_out = f'{_scheme}://'
+        # No need to re-check the scheme: anything unparseable returned above.
+        scheme_out = f'{_scheme}://'
 
     if path is True:
         path_out = purl.path

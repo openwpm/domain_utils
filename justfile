@@ -27,9 +27,12 @@ format:
     {{ ruff }} check --fix .
     {{ ruff }} format .
 
-# run the test suite
+# run the test suite (fails under 100% coverage)
 test *args:
     {{ uv }} run --group test pytest {{ args }}
+
+# alias for `just test`, which always measures coverage
+coverage: test
 
 # build the html docs
 docs:

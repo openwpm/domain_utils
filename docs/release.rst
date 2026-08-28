@@ -47,7 +47,7 @@ PyPI Release Process
 
 	.. code-block:: bash
 
-		make release
+		just release
 
 #. Check the PyPI listing page to make sure that everything displays properly. If not, try one of these:
 

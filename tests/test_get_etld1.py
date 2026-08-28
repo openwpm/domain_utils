@@ -1,4 +1,5 @@
 import pytest
+
 from domain_utils import get_etld1
 
 
@@ -34,7 +35,7 @@ def test_get_etld1_on_exotic_public_suffix():
 
 
 def test_get_etld1_on_data_url():
-    assert get_etld1("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAA") == ''
+    assert get_etld1('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAA') == ''
 
 
 def test_get_etld1_on_fbsbx_example():

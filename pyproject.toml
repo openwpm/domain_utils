@@ -1,0 +1,104 @@
+[build-system]
+requires = ["hatchling", "hatch-fancy-pypi-readme"]
+build-backend = "hatchling.build"
+
+[project]
+name = "domain-utils"
+dynamic = ["version", "readme"]
+description = "A collection of util functions for extracting domains from urls."
+requires-python = ">=3.11"
+license = "MPL-2.0"
+license-files = ["LICENSE"]
+# No email: the original author's Mozilla address no longer works.
+authors = [{ name = "Sarah Bird" }]
+maintainers = [{ name = "The OpenWPM Team" }]
+keywords = ["domain", "url", "etld", "public suffix", "tldextract"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = ["tldextract>=5.3"]
+
+[project.urls]
+Homepage = "https://github.com/openwpm/domain_utils"
+Documentation = "https://domain-utils.readthedocs.io"
+Changelog = "https://github.com/openwpm/domain_utils/blob/master/HISTORY.rst"
+Issues = "https://github.com/openwpm/domain_utils/issues"
+
+[tool.uv]
+# Without this uv installs the `dev` group for every `uv run`, so
+# `--group test` would drag in sphinx and ruff to run the tests.
+default-groups = []
+
+[dependency-groups]
+test = ["pytest>=8"]
+lint = ["ruff>=0.14"]
+docs = ["sphinx>=8", "nbsphinx>=0.9", "ipython>=8"]
+dev = [{ include-group = "test" }, { include-group = "lint" }, { include-group = "docs" }]
+
+# setup.py published README.rst + "\n\n" + HISTORY.rst as the long
+# description, so the changelog is part of the PyPI page. `readme` takes a
+# single file, hence the hook.
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/x-rst"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.rst"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+text = "\n\n"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "HISTORY.rst"
+
+[tool.hatch.version]
+path = "domain_utils/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/domain_utils",
+    "/tests",
+    "/docs",
+    "/CONTRIBUTING.rst",
+    "/HISTORY.rst",
+    "/README.rst",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["domain_utils"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--strict-config"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py311"
+extend-exclude = ["docs"]
+
+[tool.ruff.format]
+# The codebase has always been single quoted; keep it that way so formatting
+# does not churn history.
+quote-style = "single"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "C4",  # flake8-comprehensions
+    "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"domain_utils/__init__.py" = ["F403"]  # re-export the public api

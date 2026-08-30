@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'domain_utils'
-copyright = "2020, Sarah Bird"
+copyright = "2020, Sarah Bird; 2026, The OpenWPM Team"
 author = "Sarah Bird"
 
 # The version info for the project you're documenting, acts as replacement
@@ -69,7 +69,7 @@ release = domain_utils.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -109,7 +109,7 @@ html_static_path = ['_static']
 
 
 def setup(app):
-    app.add_stylesheet('css/custom.css')
+    app.add_css_file('css/custom.css')
 
 
 # -- Options for HTMLHelp output ---------------------------------------

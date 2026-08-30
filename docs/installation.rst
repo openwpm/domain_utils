@@ -12,7 +12,7 @@ To install Domain Utils, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install domain_utils
+    $ pip install domain-utils
 
 This is the preferred method to install Domain Utils, as it will always install the most recent stable release.
 
@@ -32,20 +32,20 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/mozilla/domain_utils
+    $ git clone https://github.com/openwpm/domain_utils.git
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/mozilla/domain_utils/tarball/master
+    $ curl -OJL https://github.com/openwpm/domain_utils/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ pip install .
 
 
-.. _Github repo: https://github.com/mozilla/domain_utils
-.. _tarball: https://github.com/mozilla/domain_utils/tarball/master
+.. _Github repo: https://github.com/openwpm/domain_utils
+.. _tarball: https://github.com/openwpm/domain_utils/tarball/master

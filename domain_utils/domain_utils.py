@@ -179,7 +179,7 @@ def get_ps_plus_1(url: str, **kwargs: Unpack[_StemKwargs]) -> str:
 
 @_load_and_update_extractor
 def hostname_subparts(
-    url: str, include_ps: bool = False, **kwargs: Unpack[_StemKwargs]
+    url: str, *, include_ps: bool = False, **kwargs: Unpack[_StemKwargs]
 ) -> list[str]:
     """
     Returns a list of slices of a url's hostname down to the eTLD+1 / PS+1.
@@ -241,6 +241,7 @@ def hostname_subparts(
 @_load_and_update_extractor
 def stem_url(
     url: str,
+    *,
     return_unparsed: bool = True,
     scheme_default: str | None = HTTP,
     parse_ws: bool = True,
@@ -351,7 +352,7 @@ def get_stripped_url(url: str, **kwargs: Unpack[_StemKwargs]) -> str:
     return stem_url(url, **kwargs)
 
 
-def get_scheme(url: str, no_scheme: _T = NO_SCHEME) -> str | _T:
+def get_scheme(url: str, *, no_scheme: _T = NO_SCHEME) -> str | _T:
     """
     Given a url, extract from it the scheme.
 
@@ -379,7 +380,7 @@ def get_scheme(url: str, no_scheme: _T = NO_SCHEME) -> str | _T:
 
 
 @_load_and_update_extractor
-def get_port(url: str, extractor: TLDExtract | None = None) -> int | None:
+def get_port(url: str, *, extractor: TLDExtract | None = None) -> int | None:
     """
     Given a url, extract from it the port if present.
 

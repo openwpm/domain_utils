@@ -1,70 +1,77 @@
+====================
 PyPI Release Process
-======================
+====================
+
+Releases are cut by pushing a ``v``-prefixed tag. The
+``.github/workflows/release.yml`` workflow builds the distributions, checks
+them, installs the wheel and runs the test suite against it, publishes to PyPI
+and then creates the GitHub release. Nothing is uploaded by hand, and no PyPI
+credentials exist anywhere in the repository.
 
 
-#. Update HISTORY.rst
+One-time setup: trusted publishing
+----------------------------------
+
+PyPI is configured to trust this repository's release workflow directly, so
+there is no API token to store or rotate. A maintainer with owner rights on the
+`domain-utils PyPI project <https://pypi.org/manage/project/domain-utils/settings/publishing/>`_
+adds a *pending* or *existing* GitHub publisher with:
+
+============================  ==============================
+Owner                         ``openwpm``
+Repository name               ``domain_utils``
+Workflow name                 ``release.yml``
+Environment name              ``pypi``
+============================  ==============================
+
+Then, in the GitHub repository settings, create an environment named ``pypi``.
+Restricting that environment to the ``master`` branch and to tags, and adding
+required reviewers, means a release cannot be published without a maintainer
+approving the deployment.
+
+The workflow requests an OIDC token via ``permissions: id-token: write`` and
+exchanges it for a short-lived, project-scoped PyPI credential. See the
+`PyPA guide <https://docs.pypi.org/trusted-publishers/>`_ for background.
+
+
+Cutting a release
+-----------------
+
+#. Make sure ``master`` is green, both in
+   `CI <https://github.com/openwpm/domain_utils/actions/workflows/ci.yml>`_ and
+   on `Read the Docs <https://readthedocs.org/projects/domain-utils/>`_.
+
+#. Add the release notes to ``HISTORY.rst``.
+
+#. Bump ``__version__`` in ``domain_utils/__init__.py``. That is the single
+   source of truth for the version; the packaging metadata reads it and the
+   release workflow refuses to publish if it disagrees with the tag.
+
+#. Commit and push both changes:
 
     .. code-block:: bash
 
-        git add HISTORY.rst
-        git commit -m "Changelog for upcoming release 0.1.1."
+        git commit -am "Release 0.8.0"
         git push
 
-#. Check readthedocs (https://readthedocs.org/projects/domain-utils/) to
-   ensure that master is building before updating the version.
-
-#. Update version number (can also be patch or major)
+#. Tag and push the tag:
 
     .. code-block:: bash
 
-        bump2version minor
+        git tag -a v0.8.0 -m "v0.8.0"
+        git push origin v0.8.0
 
-#. Install the package again for local development, but with the new version number:
+#. Approve the ``pypi`` deployment when the workflow asks for it, if required
+   reviewers are configured.
 
-    .. code-block:: bash
+#. Check the `PyPI listing <https://pypi.org/project/domain-utils/>`_ renders
+   correctly, and activate the new version on
+   `Read the Docs <https://readthedocs.org/projects/domain-utils/versions/>`_.
 
-        python setup.py develop
 
-#. Run the tests:
-
-    .. code-block:: bash
-
-        py.test
-
-#. Push the commit:
-
-    .. code-block:: bash
-
-        git push
-
-#. Push the tags, creating the new release on both GitHub:
-
-    .. code-block:: bash
-
-        git push --tags
-
-#. Wait for travis to finish running tests to make sure everything's ok. Then release.
-
-	.. code-block:: bash
-
-		just release
-
-#. Check the PyPI listing page to make sure that everything displays properly. If not, try one of these:
-
-    #. Copy and paste the RestructuredText into http://rst.ninjs.org/ to find out what broke the formatting.
-
-    #. Check your long_description locally:
-
-        .. code-block:: bash
-
-            pip install readme_renderer
-            python setup.py check -r -s
-
-#. Edit the release on GitHub (e.g. https://github.com/mozilla/domain_utils/releases). Paste the release notes into the release's release page, and come up with a title for the release.
-
-#. Make docs release available at https://readthedocs.org/projects/domain-utils/.
-
-About This Checklist
+If the release fails
 --------------------
 
-This checklist is adapted from https://github.com/audreyr/cookiecutter-pypackage/blob/master/docs/pypi_release_checklist.rst
+PyPI will not accept a re-upload of a version it already has, so a broken
+release cannot be fixed in place. Bump to the next patch version, tag again,
+and yank the bad release on PyPI.

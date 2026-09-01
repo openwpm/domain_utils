@@ -13,51 +13,12 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  # CI runs the same recipes as a developer does; the GitHub-flavoured output
-  # comes from the environment rather than from a CI-only spelling of the
-  # command, so there is nothing here that cannot be reproduced locally.
-  RUFF_OUTPUT_FORMAT: github
-
 jobs:
-  lint:
+  # One job, one command: `just ci` runs the same checks in the same order
+  # locally, so a red build can always be reproduced with `nix-shell --run 'just ci'`.
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      # Pinned exactly: setup-uv stopped publishing moving major tags after
-      # v7, and v7 has not moved since March.
-      - uses: astral-sh/setup-uv@v10.0.1
-        with:
-          enable-cache: true
-          # There is no uv.lock to key the cache on, and committing one would
-          # pin CI to known-good dependency versions -- exactly the upstream
-          # breakage the unbounded requirements rely on the suite to catch.
-          cache-dependency-glob: pyproject.toml
-      - run: uv tool install rust-just
-      - run: just lint
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-    env:
-      UV_PYTHON: ${{ matrix.python-version }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.0.1
-        with:
-          enable-cache: true
-          cache-dependency-glob: pyproject.toml
-      - run: uv tool install rust-just
-      - run: just test
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.0.1
-      - run: uv tool install rust-just
-      - run: just dist
-      - run: uvx twine check --strict dist/*
+      - uses: cachix/install-nix-action@v31
+      - run: nix-shell --run 'just ci'

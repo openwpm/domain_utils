@@ -1,4 +1,9 @@
+import inspect
+
 from domain_utils import stem_url
+from domain_utils.domain_utils import (
+    _StemKwargs,  # pyright: ignore[reportPrivateUsage]
+)
 
 
 def test_params() -> None:
@@ -173,3 +178,16 @@ def test_bare_host_keeps_trailing_slash() -> None:
 def test_unparsed_returns_the_original_url_not_an_adapted_one() -> None:
     url = 'my.example.com:8080/path/to/webapp.htm?aced=1'
     assert stem_url(url, scheme_default='wont_parse') == url
+
+
+def test_stem_kwargs_matches_stem_url_signature() -> None:
+    # _StemKwargs restates stem_url's keyword parameters so the functions that
+    # forward **kwargs to it stay checkable. Nothing in the language binds the
+    # two together, so pin them here: every keyword-only parameter, and no
+    # other, must appear in the TypedDict.
+    keyword_only = {
+        name
+        for name, parameter in inspect.signature(stem_url).parameters.items()
+        if parameter.kind is inspect.Parameter.KEYWORD_ONLY
+    }
+    assert keyword_only == set(_StemKwargs.__annotations__)

@@ -34,6 +34,16 @@ exchanges it for a short-lived, project-scoped PyPI credential. See the
 `PyPA guide <https://docs.pypi.org/trusted-publishers/>`_ for background.
 
 
+Naming a release
+----------------
+
+Changes are written up under a plain ``Unreleased`` heading in ``HISTORY.rst``
+as they land, and the version number is chosen when the release is cut, from
+the notes that accumulated. Deciding it earlier means deciding it when the
+first change after a release lands, which is before anyone can know whether
+what follows is a patch, a feature or a break.
+
+
 Cutting a release
 -----------------
 
@@ -47,23 +57,24 @@ Cutting a release
 
         nix-shell --run 'just ci'
 
-#. Add the release notes to ``HISTORY.rst``, under the existing
-   ``0.8.0 (unreleased)`` heading.
+#. Check the notes under the ``Unreleased`` heading in ``HISTORY.rst``, which
+   is where changes accumulate between releases, and decide from them what
+   the next version number is.
 
-#. Set the version and date the changelog:
+#. Name the release:
 
     .. code-block:: bash
 
-        just bump 0.8.0
+        just bump 0.9.0
 
-   That rewrites ``__version__`` in ``domain_utils/__init__.py`` and turns
-   ``0.8.0 (unreleased)`` into ``0.8.0 (<today>)``. ``__version__`` is the
-   single source of truth for the version: the packaging metadata reads it,
-   and the release workflow refuses to publish if it disagrees with the tag
-   or if the changelog section is still undated. The changelog is part of
-   the published description, so an undated heading would be the first thing
-   on the PyPI page. The check is ``just check-version v0.8.0``, which
-   ``just bump`` runs for you.
+   That rewrites ``__version__`` in ``domain_utils/__init__.py`` and renames
+   the ``Unreleased`` section to ``0.9.0 (<today>)``, growing the heading
+   underline to match. ``__version__`` is the single source of truth for the
+   version: the packaging metadata reads it, and the release workflow refuses
+   to publish if it disagrees with the tag or if the section for it is still
+   undated. The changelog is part of the published description, so an undated
+   heading would be the first thing on the PyPI page. The check is
+   ``just check-version v0.9.0``, which ``just bump`` runs for you.
 
 #. Commit and push both changes:
 

@@ -115,15 +115,30 @@ bump version:
         echo "error: expected a version like 0.8.0, got '$version'" >&2
         exit 1
     fi
-    if ! grep -qE "^${version} \(unreleased\)$" HISTORY.rst; then
-        echo "error: HISTORY.rst has no '${version} (unreleased)' section to date" >&2
-        grep -nE '^[0-9]+\.[0-9]+\.[0-9]+ \(' HISTORY.rst | head -3 >&2
+    if ! grep -qxF 'Unreleased' HISTORY.rst; then
+        echo "error: HISTORY.rst has no 'Unreleased' section to name" >&2
+        echo "hint: notes for unreleased changes go under an 'Unreleased' heading;" >&2
+        echo "      the version number is chosen here, at release time" >&2
         exit 1
     fi
     today="$(date +%F)"
     sed -i -E "s/^__version__ = '.*'$/__version__ = '${version}'/" domain_utils/__init__.py
-    sed -i -E "s/^${version} \(unreleased\)$/${version} (${today})/" HISTORY.rst
-    echo "__version__ = ${version}, changelog dated ${today}"
+    python3 -c 'import pathlib, re, sys
+    heading = sys.argv[1] + " (" + sys.argv[2] + ")"
+    path = pathlib.Path("HISTORY.rst")
+    # The underline has to grow with the title: an underline shorter than its
+    # title is a sphinx warning, and the docs build runs with -W.
+    body, count = re.subn(
+        r"^Unreleased\n-+$",
+        heading + "\n" + "-" * len(heading),
+        path.read_text(),
+        count=1,
+        flags=re.M,
+    )
+    if count != 1:
+        sys.exit("error: could not rewrite the Unreleased heading")
+    path.write_text(body)' "$version" "$today"
+    echo "__version__ = ${version}, changelog section is now ${version} (${today})"
     # Leaves committing and tagging to you; this only verifies what it wrote.
     just check-version "v${version}"
 

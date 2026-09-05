@@ -24,10 +24,10 @@ Workflow name                 ``release.yml``
 Environment name              ``pypi``
 ============================  ==============================
 
-Then, in the GitHub repository settings, create an environment named ``pypi``.
-Restricting that environment to the ``master`` branch and to tags, and adding
-required reviewers, means a release cannot be published without a maintainer
-approving the deployment.
+And a GitHub environment named ``pypi``, restricted to the ``v*`` tag pattern,
+with a required reviewer. That is what makes a release wait for someone to
+approve the deployment. Create it deliberately: GitHub will otherwise conjure
+an unprotected environment the first time a workflow names a missing one.
 
 The workflow requests an OIDC token via ``permissions: id-token: write`` and
 exchanges it for a short-lived, project-scoped PyPI credential. See the

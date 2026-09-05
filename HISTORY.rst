@@ -2,7 +2,7 @@
 History
 =======
 
-0.8.0 (unreleased)
+0.8.0 (2026-09-05)
 ------------------
 
 * Relax the ``tldextract`` pin from ``==2.2.2`` to ``>=5.3`` (#32). The

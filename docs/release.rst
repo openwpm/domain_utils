@@ -24,10 +24,15 @@ Workflow name                 ``release.yml``
 Environment name              ``pypi``
 ============================  ==============================
 
-Then, in the GitHub repository settings, create an environment named ``pypi``.
-Restricting that environment to the ``master`` branch and to tags, and adding
-required reviewers, means a release cannot be published without a maintainer
-approving the deployment.
+Then, in the GitHub repository settings, create an environment named ``pypi``
+and restrict it to the ``v*`` *tag* pattern, with required reviewers. A branch
+rule would be dead weight: the workflow only triggers on a tag push, so a
+branch can never reach the publish job. The required reviewer is what makes a
+release wait for a maintainer to approve the deployment.
+
+Create it before the first tag. GitHub silently creates an environment that a
+workflow names but that does not exist, with no protection rules at all, so a
+release succeeding is not by itself evidence that the gate is in place.
 
 The workflow requests an OIDC token via ``permissions: id-token: write`` and
 exchanges it for a short-lived, project-scoped PyPI credential. See the

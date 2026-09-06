@@ -130,6 +130,6 @@ select = [
 # uv keeps the dev environment here; pyright needs it to see tldextract and pytest.
 venvPath = "."
 venv = ".venv"
-include = ["domain_utils", "tests"]
+include = ["domain_utils", "scripts", "tests"]
 pythonVersion = "3.11"
 typeCheckingMode = "strict"

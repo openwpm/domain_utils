@@ -106,60 +106,13 @@ test-wheel version dist_dir='dist':
     cd "$workdir"
     ./.venv/bin/python -m pytest tests -p no:cacheprovider
 
-# set the version and date the changelog, e.g. `just bump 0.8.0`
+# set the version and name the changelog section, e.g. `just bump 0.8.0`
 bump version:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    version="{{ trim_start_match(version, 'v') }}"
-    if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-        echo "error: expected a version like 0.8.0, got '$version'" >&2
-        exit 1
-    fi
-    if ! grep -qxF 'Unreleased' HISTORY.rst; then
-        echo "error: HISTORY.rst has no 'Unreleased' section to name" >&2
-        echo "hint: notes for unreleased changes go under an 'Unreleased' heading;" >&2
-        echo "      the version number is chosen here, at release time" >&2
-        exit 1
-    fi
-    today="$(date +%F)"
-    sed -i -E "s/^__version__ = '.*'$/__version__ = '${version}'/" domain_utils/__init__.py
-    python3 -c 'import pathlib, re, sys
-    heading = sys.argv[1] + " (" + sys.argv[2] + ")"
-    path = pathlib.Path("HISTORY.rst")
-    # The underline has to grow with the title: an underline shorter than its
-    # title is a sphinx warning, and the docs build runs with -W.
-    body, count = re.subn(
-        r"^Unreleased\n-+$",
-        heading + "\n" + "-" * len(heading),
-        path.read_text(),
-        count=1,
-        flags=re.M,
-    )
-    if count != 1:
-        sys.exit("error: could not rewrite the Unreleased heading")
-    path.write_text(body)' "$version" "$today"
-    echo "__version__ = ${version}, changelog section is now ${version} (${today})"
-    # Leaves committing and tagging to you; this only verifies what it wrote.
-    just check-version "v${version}"
+    {{ uv }} run --script scripts/release.py bump {{ version }}
 
 # check the tag matches the packaged version and the dated changelog section
 check-version tag:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    tag="{{ trim_start_match(tag, 'v') }}"
-    version="$(sed -n "s/^__version__ = ['\"]\(.*\)['\"]$/\1/p" domain_utils/__init__.py)"
-    if [ "$tag" != "$version" ]; then
-        echo "::error::tag {{ tag }} does not match __version__ '$version'"
-        exit 1
-    fi
-    # The changelog is part of the published description, so an undated
-    # "(unreleased)" heading would ship to PyPI as the first thing on the page.
-    if ! grep -qE "^${tag} \([0-9]{4}-[0-9]{2}-[0-9]{2}\)$" HISTORY.rst; then
-        echo "::error::HISTORY.rst needs a dated section for ${tag}, e.g. '${tag} ($(date +%F))'"
-        grep -n "^${tag} " HISTORY.rst >&2 || echo "  (no section for ${tag} at all)" >&2
-        exit 1
-    fi
-    echo "Releasing $version"
+    {{ uv }} run --script scripts/release.py check {{ tag }}
 
 # how to publish
 release:
